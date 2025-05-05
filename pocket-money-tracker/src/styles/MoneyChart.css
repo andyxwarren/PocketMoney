@@ -1,0 +1,125 @@
+.money-chart-container {
+  background-color: var(--background-white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.money-chart-container h2 {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.money-chart-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url('/images/chart.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.chart-type-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.chart-type-selector button {
+  background-color: var(--background-light);
+  color: var(--text-secondary);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.chart-type-selector button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.chart-type-selector button:hover:not(.active):not(:disabled) {
+  background-color: var(--border-color);
+}
+
+.chart-type-selector button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chart-container {
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.empty-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.empty-chart img {
+  width: 120px;
+  height: 120px;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.chart-summary {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--background-light);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.color-box.saved {
+  background-color: var(--primary-color);
+}
+
+.color-box.spent {
+  background-color: var(--danger-color);
+}
+
+/* Animation for chart */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-container canvas {
+  animation: fadeInUp 0.5s ease-out;
+}

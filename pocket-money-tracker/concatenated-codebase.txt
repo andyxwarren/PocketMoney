@@ -1,0 +1,2830 @@
+FILE START
+File Location: concatenate-files.js
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Concatenates all files in a directory and its subdirectories into a single text file
+ * @param {string} rootDir - The root directory to start from
+ * @param {string} outputFile - The path to the output file
+ * @param {Array<string>} excludePatterns - Array of patterns to exclude (folders or files)
+ */
+function concatenateFiles(rootDir, outputFile, excludePatterns = []) {
+    // Normalize the root directory path
+    rootDir = path.resolve(rootDir);
+
+    // Create or clear the output file
+    fs.writeFileSync(outputFile, '', 'utf8');
+
+    // Function to check if a path should be excluded
+    function shouldExclude(filePath) {
+        const relativePath = path.relative(rootDir, filePath);
+        return excludePatterns.some(pattern => {
+            // Check if the path matches the pattern
+            if (pattern.endsWith('/') || pattern.endsWith('\\')) {
+                // It's a directory pattern
+                const dirPattern = pattern.slice(0, -1);
+                return relativePath.startsWith(dirPattern) ||
+                    relativePath === dirPattern ||
+                    relativePath.includes(`${path.sep}${dirPattern}${path.sep}`);
+            } else {
+                // It's a file pattern
+                return relativePath === pattern ||
+                    relativePath.endsWith(pattern) ||
+                    relativePath.includes(`${path.sep}${pattern}`);
+            }
+        });
+    }
+
+    // Function to process a directory recursively
+    function processDirectory(dirPath) {
+        if (shouldExclude(dirPath)) {
+            return;
+        }
+
+        const items = fs.readdirSync(dirPath);
+
+        for (const item of items) {
+            const itemPath = path.join(dirPath, item);
+            const stats = fs.statSync(itemPath);
+
+            if (shouldExclude(itemPath)) {
+                continue;
+            }
+
+            if (stats.isDirectory()) {
+                processDirectory(itemPath);
+            } else if (stats.isFile()) {
+                try {
+                    // Read the file content
+                    const content = fs.readFileSync(itemPath, 'utf8');
+
+                    // Get the relative path for display
+                    const relativePath = path.relative(rootDir, itemPath);
+
+                    // Format the output
+                    const output = [
+                        'FILE START',
+                        `File Location: ${relativePath.replace(/\\/g, '/')}`,
+                        content,
+                        'FILE END',
+                        '\n'
+                    ].join('\n');
+
+                    // Append to the output file
+                    fs.appendFileSync(outputFile, output, 'utf8');
+                    console.log(`Processed: ${relativePath}`);
+                } catch (error) {
+                    console.error(`Error processing file ${itemPath}: ${error.message}`);
+                }
+            }
+        }
+    }
+
+    // Start processing from the root directory
+    processDirectory(rootDir);
+    console.log(`All files have been concatenated to ${outputFile}`);
+}
+
+// Parse command line arguments if script is run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+    const args = process.argv.slice(2);
+
+    if (args.length < 2) {
+        console.log('Usage: node concatenate-files.js <rootDir> <outputFile> [excludePattern1,excludePattern2,...]');
+        process.exit(1);
+    }
+
+    const rootDir = args[0];
+    const outputFile = args[1];
+    const excludePatterns = args[2] ? args[2].split(',') : ['node_modules/', 'package-lock.json', '.git/'];
+
+    concatenateFiles(rootDir, outputFile, excludePatterns);
+}
+
+// Export the function
+export default concatenateFiles;
+FILE END
+
+FILE START
+File Location: eslint.config.js
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+
+export default tseslint.config(
+  { ignores: ['dist'] },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+)
+
+FILE END
+
+FILE START
+File Location: example-usage.js
+import concatenateFiles from './concatenate-files.js';
+
+// Example usage
+concatenateFiles(
+    '.', // Current directory (pocket-money-tracker)
+    './concatenated-codebase.txt',
+    [
+        'node_modules/',
+        'package-lock.json',
+        '.git/',
+        'dist/',
+        'build/',
+        'concatenated-codebase.txt' // Exclude the output file itself
+    ]
+);
+FILE END
+
+FILE START
+File Location: index.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React + TS</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+FILE END
+
+FILE START
+File Location: package.json
+{
+  "name": "pocket-money-tracker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.9",
+    "react": "^19.1.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.5.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  }
+}
+
+FILE END
+
+FILE START
+File Location: public/images/piggy-bank.svg
+
+FILE END
+
+FILE START
+File Location: public/vite.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+FILE END
+
+FILE START
+File Location: README.md
+# React + TypeScript + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default tseslint.config({
+  plugins: {
+    // Add the react-x and react-dom plugins
+    'react-x': reactX,
+    'react-dom': reactDom,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended typescript rules
+    ...reactX.configs['recommended-typescript'].rules,
+    ...reactDom.configs.recommended.rules,
+  },
+})
+```
+
+FILE END
+
+FILE START
+File Location: src/App.css
+:root {
+  --primary-color: #4CAF50;
+  --primary-dark: #388E3C;
+  --primary-light: #A5D6A7;
+  --secondary-color: #FF9800;
+  --secondary-dark: #F57C00;
+  --secondary-light: #FFE0B2;
+  --danger-color: #FF5252;
+  --danger-dark: #D32F2F;
+  --success-color: #66BB6A;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --background-light: #F5F5F5;
+  --background-white: #FFFFFF;
+  --border-color: #E0E0E0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, button {
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  transform: none;
+}
+
+h1, h2, h3 {
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Animation for success messages */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.success-message {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+}
+
+FILE END
+
+FILE START
+File Location: src/App.tsx
+import React from 'react';
+import { MoneyProvider } from './context/MoneyContext';
+import HomePage from './pages/HomePage';
+import './App.css';
+
+function App() {
+  return (
+    <MoneyProvider>
+      <HomePage />
+    </MoneyProvider>
+  );
+}
+
+export default App;
+
+FILE END
+
+FILE START
+File Location: src/assets/react.svg
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+FILE END
+
+FILE START
+File Location: src/components/AddMoney.tsx
+import React, { useState } from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/AddMoney.css';
+
+const AddMoney: React.FC = () => {
+    const [amount, setAmount] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [showSuccess, setShowSuccess] = useState<boolean>(false);
+
+    const { state, addMoney } = useMoneyContext();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validate input
+        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+
+        if (!description.trim()) {
+            setError('Please enter a description');
+            return;
+        }
+
+        // Add money
+        addMoney(Number(amount), description);
+
+        // Reset form
+        setAmount('');
+        setDescription('');
+        setError('');
+
+        // Show success message
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+    };
+
+    return (
+        <div className="add-money-container">
+            <h2>Add Money</h2>
+
+            {showSuccess && (
+                <div className="success-message">
+                    <img src="/images/success.svg" alt="Success" />
+                    <p>Money added successfully!</p>
+                </div>
+            )}
+
+            {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="amount">Amount ({state.currency})</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="5.00"
+                        step="0.01"
+                        min="0.01"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="description">Description</label>
+                    <input
+                        type="text"
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="e.g., Pocket money, Birthday gift"
+                    />
+                </div>
+
+                <button type="submit" className="add-button">
+                    <span>Add Money</span>
+                    <img src="/images/coin.svg" alt="Coin" />
+                </button>
+            </form>
+        </div>
+    );
+};
+
+export default AddMoney;
+FILE END
+
+FILE START
+File Location: src/components/CurrencySelector.tsx
+import React from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/CurrencySelector.css';
+import type { CurrencySymbol } from '../context/MoneyContext';
+
+const CurrencySelector: React.FC = () => {
+    const { state, setCurrency } = useMoneyContext();
+
+    const currencies: { symbol: CurrencySymbol; name: string }[] = [
+        { symbol: '£', name: 'British Pound' },
+        { symbol: '$', name: 'US Dollar' },
+        { symbol: '€', name: 'Euro' },
+        { symbol: '¥', name: 'Japanese Yen' }
+    ];
+
+    return (
+        <div className="currency-selector">
+            <h3>Select Currency</h3>
+            <div className="currency-options">
+                {currencies.map(currency => (
+                    <button
+                        key={currency.symbol}
+                        className={state.currency === currency.symbol ? 'active' : ''}
+                        onClick={() => setCurrency(currency.symbol)}
+                        title={currency.name}
+                    >
+                        {currency.symbol}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default CurrencySelector;
+FILE END
+
+FILE START
+File Location: src/components/Header.tsx
+import React from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/Header.css';
+
+const Header: React.FC = () => {
+    const { state } = useMoneyContext();
+
+    return (
+        <header className="header">
+            <div className="logo">
+                <h1>Pocket Money Tracker</h1>
+                <img src="/images/piggy-bank.svg" alt="Piggy Bank" className="logo-image" />
+            </div>
+            <div className="balance-container">
+                <h2>Current Balance</h2>
+                <div className="balance">£{state.balance.toFixed(2)}</div>
+            </div>
+        </header>
+    );
+};
+
+export default Header;
+FILE END
+
+FILE START
+File Location: src/components/MoneyChart.tsx
+import React, { useState } from 'react';
+import {
+    Chart as ChartJS,
+    ArcElement,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title
+} from 'chart.js';
+import { Doughnut, Line } from 'react-chartjs-2';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/MoneyChart.css';
+
+// Register ChartJS components
+ChartJS.register(
+    ArcElement,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title
+);
+
+const MoneyChart: React.FC = () => {
+    const { state } = useMoneyContext();
+    const [chartType, setChartType] = useState<'doughnut' | 'line'>('doughnut');
+
+    // Prepare data for the doughnut chart
+    const doughnutData = {
+        labels: ['Money Saved', 'Money Spent'],
+        datasets: [
+            {
+                data: [state.balance, state.totalSpent],
+                backgroundColor: ['#4CAF50', '#FF5252'],
+                borderColor: ['#388E3C', '#D32F2F'],
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    // Prepare data for the line chart - balance history
+    const getLineChartData = () => {
+        // Get last 10 transactions in chronological order
+        const transactions = [...state.transactions].slice(0, 10).reverse();
+
+        // Calculate running balance for each transaction
+        let runningBalance = state.balance;
+        const balanceHistory = transactions.map(t => {
+            if (t.type === 'remove') {
+                runningBalance += t.amount;
+            } else {
+                runningBalance -= t.amount;
+            }
+            return runningBalance;
+        }).reverse();
+
+        // Add current balance to the end
+        balanceHistory.push(state.balance);
+
+        // Create labels (dates or transaction numbers)
+        const labels = transactions.map((t, index) =>
+            `Tx ${transactions.length - index}`
+        );
+        labels.push('Current');
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: `Balance (${state.currency})`,
+                    data: balanceHistory,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#388E3C',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                },
+            ],
+        };
+    };
+
+    const lineData = getLineChartData();
+
+    // Options for the line chart
+    const lineOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: 'Balance History',
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: `Amount (${state.currency})`,
+                }
+            }
+        }
+    };
+
+    // Options for the doughnut chart
+    const doughnutOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: 'Money Saved vs Spent',
+            },
+        },
+    };
+
+    // Check if there's data to display
+    const hasData = state.balance > 0 || state.totalSpent > 0;
+    const hasTransactions = state.transactions.length > 0;
+
+    return (
+        <div className="money-chart-container">
+            <h2>Money Tracker</h2>
+
+            {!hasData && (
+                <div className="empty-chart">
+                    <img src="/images/chart-placeholder.svg" alt="Empty Chart" />
+                    <p>Add some money to see your charts!</p>
+                </div>
+            )}
+
+            {hasData && (
+                <>
+                    <div className="chart-type-selector">
+                        <button
+                            className={chartType === 'doughnut' ? 'active' : ''}
+                            onClick={() => setChartType('doughnut')}
+                        >
+                            Pie Chart
+                        </button>
+                        <button
+                            className={chartType === 'line' ? 'active' : ''}
+                            onClick={() => setChartType('line')}
+                            disabled={!hasTransactions}
+                        >
+                            Line Chart
+                        </button>
+                    </div>
+
+                    <div className="chart-container">
+                        {chartType === 'doughnut' ? (
+                            <Doughnut data={doughnutData} options={doughnutOptions} />
+                        ) : (
+                            hasTransactions ? (
+                                <Line data={lineData} options={lineOptions} />
+                            ) : (
+                                <div className="empty-chart">
+                                    <p>No transactions to display in line chart</p>
+                                </div>
+                            )
+                        )}
+                    </div>
+
+                    <div className="chart-summary">
+                        <div className="summary-item">
+                            <div className="color-box saved"></div>
+                            <span>Saved: {state.currency}{state.balance.toFixed(2)}</span>
+                        </div>
+                        <div className="summary-item">
+                            <div className="color-box spent"></div>
+                            <span>Spent: {state.currency}{state.totalSpent.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
+export default MoneyChart;
+FILE END
+
+FILE START
+File Location: src/components/RemoveMoney.tsx
+import React, { useState } from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/RemoveMoney.css';
+
+const RemoveMoney: React.FC = () => {
+    const [amount, setAmount] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [showSuccess, setShowSuccess] = useState<boolean>(false);
+
+    const { state, removeMoney } = useMoneyContext();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validate input
+        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+
+        if (!description.trim()) {
+            setError('Please enter a description');
+            return;
+        }
+
+        // Check if there's enough balance
+        if (Number(amount) > state.balance) {
+            setError('Not enough money in your piggy bank!');
+            return;
+        }
+
+        // Remove money
+        removeMoney(Number(amount), description);
+
+        // Reset form
+        setAmount('');
+        setDescription('');
+        setError('');
+
+        // Show success message
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+    };
+
+    return (
+        <div className="remove-money-container">
+            <h2>Spend Money</h2>
+
+            {showSuccess && (
+                <div className="success-message">
+                    <img src="/images/shopping.svg" alt="Shopping" />
+                    <p>Money spent successfully!</p>
+                </div>
+            )}
+
+            {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="remove-amount">Amount ({state.currency})</label>
+                    <input
+                        type="number"
+                        id="remove-amount"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="10.00"
+                        step="0.01"
+                        min="0.01"
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="remove-description">What did you buy?</label>
+                    <input
+                        type="text"
+                        id="remove-description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="e.g., Toy, Book, Game"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    className="spend-button"
+                    disabled={state.balance <= 0}
+                >
+                    <span>Spend Money</span>
+                    <img src="/images/shopping-cart.svg" alt="Shopping Cart" />
+                </button>
+            </form>
+
+            {state.balance <= 0 && (
+                <div className="empty-balance-message">
+                    <p>Your piggy bank is empty! Add some money first.</p>
+                    <img src="/images/empty-piggy.svg" alt="Empty Piggy Bank" />
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default RemoveMoney;
+FILE END
+
+FILE START
+File Location: src/components/SavingsGoals.tsx
+import React, { useState } from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/SavingsGoals.css';
+
+const SavingsGoals: React.FC = () => {
+    const { state, addSavingsGoal, contributeToGoal, removeSavingsGoal } = useMoneyContext();
+    const [goalName, setGoalName] = useState('');
+    const [goalAmount, setGoalAmount] = useState('');
+    const [contributionAmount, setContributionAmount] = useState('');
+    const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
+    const [error, setError] = useState('');
+
+    const handleAddGoal = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!goalName.trim()) {
+            setError('Please enter a goal name');
+            return;
+        }
+
+        const amount = parseFloat(goalAmount);
+        if (isNaN(amount) || amount <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+
+        addSavingsGoal(goalName, amount);
+        setGoalName('');
+        setGoalAmount('');
+        setError('');
+    };
+
+    const handleContribute = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!selectedGoalId) {
+            setError('Please select a goal');
+            return;
+        }
+
+        const amount = parseFloat(contributionAmount);
+        if (isNaN(amount) || amount <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+
+        if (amount > state.balance) {
+            setError('Not enough money in your balance');
+            return;
+        }
+
+        contributeToGoal(selectedGoalId, amount);
+        setContributionAmount('');
+        setSelectedGoalId(null);
+        setError('');
+    };
+
+    const calculateProgress = (current: number, target: number) => {
+        return Math.min((current / target) * 100, 100);
+    };
+
+    return (
+        <div className="savings-goals-container">
+            <h2>Savings Goals</h2>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="add-goal-form">
+                <h3>Add New Goal</h3>
+                <form onSubmit={handleAddGoal}>
+                    <div className="form-group">
+                        <label htmlFor="goal-name">Goal Name</label>
+                        <input
+                            type="text"
+                            id="goal-name"
+                            value={goalName}
+                            onChange={(e) => setGoalName(e.target.value)}
+                            placeholder="e.g., Toy Car, Video Game"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="goal-amount">Target Amount ({state.currency})</label>
+                        <input
+                            type="number"
+                            id="goal-amount"
+                            value={goalAmount}
+                            onChange={(e) => setGoalAmount(e.target.value)}
+                            placeholder="20.00"
+                            step="0.01"
+                            min="0.01"
+                        />
+                    </div>
+
+                    <button type="submit" className="add-goal-button">
+                        Add Goal
+                    </button>
+                </form>
+            </div>
+
+            {state.savingsGoals?.length > 0 ? (
+                <>
+                    <div className="goals-list">
+                        <h3>Your Goals</h3>
+                        {state.savingsGoals?.map((goal) => (
+                            <div
+                                key={goal.id}
+                                className={`goal-item ${goal.completed ? 'completed' : ''}`}
+                            >
+                                <div className="goal-info">
+                                    <h4>{goal.name}</h4>
+                                    <div className="goal-progress">
+                                        <div
+                                            className="progress-bar"
+                                            style={{ width: `${calculateProgress(goal.currentAmount, goal.targetAmount)}%` }}
+                                        ></div>
+                                    </div>
+                                    <div className="goal-amounts">
+                                        <span>
+                                            {state.currency}{goal.currentAmount.toFixed(2)} / {state.currency}{goal.targetAmount.toFixed(2)}
+                                        </span>
+                                        <span className="goal-percentage">
+                                            {calculateProgress(goal.currentAmount, goal.targetAmount).toFixed(0)}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="goal-actions">
+                                    {!goal.completed && (
+                                        <button
+                                            className="select-goal-button"
+                                            onClick={() => setSelectedGoalId(goal.id)}
+                                        >
+                                            Select
+                                        </button>
+                                    )}
+                                    <button
+                                        className="remove-goal-button"
+                                        onClick={() => removeSavingsGoal(goal.id)}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {state.balance > 0 && (
+                        <div className="contribute-form">
+                            <h3>Contribute to Goal</h3>
+                            <form onSubmit={handleContribute}>
+                                <div className="form-group">
+                                    <label htmlFor="contribution-amount">Amount ({state.currency})</label>
+                                    <input
+                                        type="number"
+                                        id="contribution-amount"
+                                        value={contributionAmount}
+                                        onChange={(e) => setContributionAmount(e.target.value)}
+                                        placeholder="5.00"
+                                        step="0.01"
+                                        min="0.01"
+                                        max={state.balance}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="contribute-button"
+                                    disabled={!selectedGoalId}
+                                >
+                                    {selectedGoalId
+                                        ? `Contribute to ${state.savingsGoals?.find(g => g.id === selectedGoalId)?.name}`
+                                        : 'Select a goal first'}
+                                </button>
+                            </form>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="empty-goals">
+                    <p>You don't have any savings goals yet. Add one to start saving!</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default SavingsGoals;
+FILE END
+
+FILE START
+File Location: src/components/TransactionHistory.tsx
+import React, { useState } from 'react';
+import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/TransactionHistory.css';
+
+const TransactionHistory: React.FC = () => {
+    const { state } = useMoneyContext();
+    const [filter, setFilter] = useState<'all' | 'add' | 'remove'>('all');
+    const [showCount, setShowCount] = useState<number>(10);
+
+    // Format date to be more readable
+    const formatDate = (dateString: string): string => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        });
+    };
+
+    // Filter transactions based on selected filter
+    const filteredTransactions = state.transactions.filter(transaction => {
+        if (filter === 'all') return true;
+        return transaction.type === filter;
+    }).slice(0, showCount);
+
+    return (
+        <div className="transaction-history-container">
+            <h2>Transaction History</h2>
+
+            {state.transactions.length === 0 ? (
+                <div className="empty-transactions">
+                    <img src="/images/empty-list.svg" alt="Empty List" />
+                    <p>No transactions yet. Start by adding some money!</p>
+                </div>
+            ) : (
+                <>
+                    <div className="transaction-filters">
+                        <button
+                            className={filter === 'all' ? 'active' : ''}
+                            onClick={() => setFilter('all')}
+                        >
+                            All
+                        </button>
+                        <button
+                            className={filter === 'add' ? 'active' : ''}
+                            onClick={() => setFilter('add')}
+                        >
+                            Money In
+                        </button>
+                        <button
+                            className={filter === 'remove' ? 'active' : ''}
+                            onClick={() => setFilter('remove')}
+                        >
+                            Money Out
+                        </button>
+                    </div>
+
+                    <div className="transactions-list">
+                        {filteredTransactions.map((transaction) => (
+                            <div
+                                key={transaction.id}
+                                className={`transaction-item ${transaction.type === 'add' ? 'add' : 'remove'}`}
+                            >
+                                <div className="transaction-icon">
+                                    {transaction.type === 'add' ? (
+                                        <img src="/images/money-in.svg" alt="Money In" />
+                                    ) : (
+                                        <img src="/images/money-out.svg" alt="Money Out" />
+                                    )}
+                                </div>
+
+                                <div className="transaction-details">
+                                    <div className="transaction-description">{transaction.description}</div>
+                                    <div className="transaction-date">{formatDate(transaction.date)}</div>
+                                </div>
+
+                                <div className="transaction-amount">
+                                    {transaction.type === 'add' ? '+' : '-'}{state.currency}{transaction.amount.toFixed(2)}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {state.transactions.length > showCount && (
+                        <button
+                            className="load-more-button"
+                            onClick={() => setShowCount(prev => prev + 10)}
+                        >
+                            Load More
+                        </button>
+                    )}
+                </>
+            )}
+
+            <div className="transaction-summary">
+                <div className="summary-item">
+                    <span>Total Added:</span>
+                    <span className="total-added">{state.currency}{state.totalAdded.toFixed(2)}</span>
+                </div>
+                <div className="summary-item">
+                    <span>Total Spent:</span>
+                    <span className="total-spent">{state.currency}{state.totalSpent.toFixed(2)}</span>
+                </div>
+                <div className="summary-item">
+                    <span>Current Balance:</span>
+                    <span className="current-balance">{state.currency}{state.balance.toFixed(2)}</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default TransactionHistory;
+FILE END
+
+FILE START
+File Location: src/context/MoneyContext.tsx
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
+// Define types
+type TransactionType = 'add' | 'remove';
+export type CurrencySymbol = '£' | '$' | '€' | '¥';
+
+interface Transaction {
+    id: string;
+    amount: number;
+    description: string;
+    type: TransactionType;
+    date: string;
+}
+
+interface SavingsGoal {
+    id: string;
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    completed: boolean;
+}
+
+interface MoneyState {
+    transactions: Transaction[];
+    balance: number;
+    totalAdded: number;
+    totalSpent: number;
+    currency: CurrencySymbol;
+    savingsGoals: SavingsGoal[];
+}
+
+type MoneyAction =
+    | { type: 'ADD_MONEY'; payload: { amount: number; description: string } }
+    | { type: 'REMOVE_MONEY'; payload: { amount: number; description: string } }
+    | { type: 'SET_CURRENCY'; payload: { currency: CurrencySymbol } }
+    | { type: 'ADD_SAVINGS_GOAL'; payload: { name: string; targetAmount: number } }
+    | { type: 'CONTRIBUTE_TO_GOAL'; payload: { goalId: string; amount: number } }
+    | { type: 'REMOVE_SAVINGS_GOAL'; payload: { goalId: string } }
+    | { type: 'RESET' };
+
+interface MoneyContextType {
+    state: MoneyState;
+    addMoney: (amount: number, description: string) => void;
+    removeMoney: (amount: number, description: string) => void;
+    setCurrency: (currency: CurrencySymbol) => void;
+    addSavingsGoal: (name: string, targetAmount: number) => void;
+    contributeToGoal: (goalId: string, amount: number) => void;
+    removeSavingsGoal: (goalId: string) => void;
+    resetData: () => void;
+}
+
+// Create context
+const MoneyContext = createContext<MoneyContextType | undefined>(undefined);
+
+// Initial state
+const initialState: MoneyState = {
+    transactions: [],
+    balance: 0,
+    totalAdded: 0,
+    totalSpent: 0,
+    currency: '£',
+    savingsGoals: [],
+};
+
+// Load state from localStorage
+const loadState = (): MoneyState => {
+    try {
+        const savedState = localStorage.getItem('pocketMoneyState');
+        if (savedState === null) {
+            return initialState;
+        }
+        const parsedState = JSON.parse(savedState);
+        // Ensure savingsGoals is always an array
+        if (!parsedState.savingsGoals) {
+            parsedState.savingsGoals = [];
+        }
+        return parsedState;
+    } catch (err) {
+        console.error('Error loading state from localStorage:', err);
+        return initialState;
+    }
+};
+
+// Reducer function
+const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
+    let newState: MoneyState;
+
+    switch (action.type) {
+        case 'ADD_MONEY':
+            newState = {
+                ...state,
+                transactions: [
+                    {
+                        id: uuidv4(),
+                        amount: action.payload.amount,
+                        description: action.payload.description,
+                        type: 'add',
+                        date: new Date().toISOString(),
+                    },
+                    ...state.transactions,
+                ],
+                balance: state.balance + action.payload.amount,
+                totalAdded: state.totalAdded + action.payload.amount,
+            };
+            break;
+
+        case 'REMOVE_MONEY':
+            newState = {
+                ...state,
+                transactions: [
+                    {
+                        id: uuidv4(),
+                        amount: action.payload.amount,
+                        description: action.payload.description,
+                        type: 'remove',
+                        date: new Date().toISOString(),
+                    },
+                    ...state.transactions,
+                ],
+                balance: state.balance - action.payload.amount,
+                totalSpent: state.totalSpent + action.payload.amount,
+            };
+            break;
+
+        case 'SET_CURRENCY':
+            newState = {
+                ...state,
+                currency: action.payload.currency,
+            };
+            break;
+
+        case 'ADD_SAVINGS_GOAL':
+            newState = {
+                ...state,
+                savingsGoals: [
+                    ...state.savingsGoals,
+                    {
+                        id: uuidv4(),
+                        name: action.payload.name,
+                        targetAmount: action.payload.targetAmount,
+                        currentAmount: 0,
+                        completed: false,
+                    },
+                ],
+            };
+            break;
+
+        case 'CONTRIBUTE_TO_GOAL': {
+            const { goalId, amount } = action.payload;
+            const updatedGoals = state.savingsGoals.map(goal => {
+                if (goal.id === goalId) {
+                    const newAmount = goal.currentAmount + amount;
+                    return {
+                        ...goal,
+                        currentAmount: newAmount,
+                        completed: newAmount >= goal.targetAmount,
+                    };
+                }
+                return goal;
+            });
+
+            newState = {
+                ...state,
+                savingsGoals: updatedGoals,
+                balance: state.balance - amount,
+                transactions: [
+                    {
+                        id: uuidv4(),
+                        amount: amount,
+                        description: `Contribution to goal: ${state.savingsGoals.find(g => g.id === goalId)?.name}`,
+                        type: 'remove',
+                        date: new Date().toISOString(),
+                    },
+                    ...state.transactions,
+                ],
+                totalSpent: state.totalSpent + amount,
+            };
+            break;
+        }
+
+        case 'REMOVE_SAVINGS_GOAL':
+            newState = {
+                ...state,
+                savingsGoals: state.savingsGoals.filter(goal => goal.id !== action.payload.goalId),
+            };
+            break;
+
+        case 'RESET':
+            newState = initialState;
+            break;
+
+        default:
+            return state;
+    }
+
+    // Ensure savingsGoals is always an array
+    if (!newState.savingsGoals) {
+        newState.savingsGoals = [];
+    }
+
+    // Save to localStorage
+    localStorage.setItem('pocketMoneyState', JSON.stringify(newState));
+    return newState;
+};
+
+// Provider component
+interface MoneyProviderProps {
+    children: ReactNode;
+}
+
+export const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
+    const [state, dispatch] = useReducer(moneyReducer, loadState());
+
+    // Save state to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('pocketMoneyState', JSON.stringify(state));
+    }, [state]);
+
+    // Action creators
+    const addMoney = (amount: number, description: string) => {
+        dispatch({ type: 'ADD_MONEY', payload: { amount, description } });
+    };
+
+    const removeMoney = (amount: number, description: string) => {
+        dispatch({ type: 'REMOVE_MONEY', payload: { amount, description } });
+    };
+
+    const setCurrency = (currency: CurrencySymbol) => {
+        dispatch({ type: 'SET_CURRENCY', payload: { currency } });
+    };
+
+    const addSavingsGoal = (name: string, targetAmount: number) => {
+        dispatch({ type: 'ADD_SAVINGS_GOAL', payload: { name, targetAmount } });
+    };
+
+    const contributeToGoal = (goalId: string, amount: number) => {
+        dispatch({ type: 'CONTRIBUTE_TO_GOAL', payload: { goalId, amount } });
+    };
+
+    const removeSavingsGoal = (goalId: string) => {
+        dispatch({ type: 'REMOVE_SAVINGS_GOAL', payload: { goalId } });
+    };
+
+    const resetData = () => {
+        dispatch({ type: 'RESET' });
+    };
+
+    return (
+        <MoneyContext.Provider value={{
+            state,
+            addMoney,
+            removeMoney,
+            setCurrency,
+            addSavingsGoal,
+            contributeToGoal,
+            removeSavingsGoal,
+            resetData
+        }}>
+            {children}
+        </MoneyContext.Provider>
+    );
+};
+
+// Custom hook to use the money context
+export const useMoneyContext = (): MoneyContextType => {
+    const context = useContext(MoneyContext);
+    if (context === undefined) {
+        throw new Error('useMoneyContext must be used within a MoneyProvider');
+    }
+    return context;
+};
+FILE END
+
+FILE START
+File Location: src/index.css
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+FILE END
+
+FILE START
+File Location: src/main.tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+FILE END
+
+FILE START
+File Location: src/pages/HomePage.tsx
+import React from 'react';
+import Header from '../components/Header';
+import AddMoney from '../components/AddMoney';
+import RemoveMoney from '../components/RemoveMoney';
+import TransactionHistory from '../components/TransactionHistory';
+import MoneyChart from '../components/MoneyChart';
+import CurrencySelector from '../components/CurrencySelector';
+import SavingsGoals from '../components/SavingsGoals';
+import '../styles/HomePage.css';
+
+const HomePage: React.FC = () => {
+    return (
+        <div className="home-page">
+            <Header />
+
+            <main className="main-content">
+                <div className="settings-panel">
+                    <CurrencySelector />
+                </div>
+
+                <div className="content-grid">
+                    <div className="money-actions">
+                        <AddMoney />
+                        <RemoveMoney />
+                    </div>
+
+                    <div className="money-visuals">
+                        <MoneyChart />
+                    </div>
+
+                    <div className="savings-section">
+                        <SavingsGoals />
+                    </div>
+
+                    <div className="history-section">
+                        <TransactionHistory />
+                    </div>
+                </div>
+            </main>
+
+            <footer className="footer">
+                <p>Pocket Money Tracker - Making saving fun for kids!</p>
+                <div className="footer-images">
+                    <img src="/images/coins.svg" alt="Coins" />
+                    <img src="/images/piggy-bank-small.svg" alt="Piggy Bank" />
+                    <img src="/images/money-plant.svg" alt="Money Plant" />
+                </div>
+            </footer>
+        </div>
+    );
+};
+
+export default HomePage;
+FILE END
+
+FILE START
+File Location: src/styles/AddMoney.css
+.add-money-container {
+  background-color: var(--background-white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 1.5rem;
+  border: 2px solid var(--primary-light);
+}
+
+.add-money-container h2 {
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-money-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url('/images/add-money.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--primary-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.add-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.add-button img {
+  width: 24px;
+  height: 24px;
+}
+
+.error-message {
+  background-color: rgba(255, 82, 82, 0.1);
+  color: var(--danger-dark);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--danger-color);
+}
+
+.success-message {
+  background-color: rgba(102, 187, 106, 0.1);
+  color: var(--primary-dark);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--success-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.success-message img {
+  width: 24px;
+  height: 24px;
+}
+
+/* Animation for button */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-10px);}
+  60% {transform: translateY(-5px);}
+}
+
+.add-button:active {
+  animation: bounce 0.5s ease;
+}
+FILE END
+
+FILE START
+File Location: src/styles/CurrencySelector.css
+.currency-selector {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.currency-selector h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: var(--primary-dark);
+    font-size: 1.1rem;
+}
+
+.currency-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.currency-options button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    background-color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.currency-options button:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.currency-options button.active {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+FILE END
+
+FILE START
+File Location: src/styles/Header.css
+.header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px var(--shadow-color);
+  border-radius: 0 0 16px 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo h1 {
+  color: white;
+  font-size: 1.8rem;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.logo-image {
+  width: 50px;
+  height: 50px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.balance-container {
+  background-color: white;
+  color: var(--primary-dark);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 3px solid var(--primary-dark);
+}
+
+.balance-container h2 {
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.balance {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary-dark);
+}
+
+/* Animation for balance change */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.balance-container.updated .balance {
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.5rem;
+  }
+  
+  .balance-container {
+    width: 100%;
+  }
+}
+FILE END
+
+FILE START
+File Location: src/styles/HomePage.css
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+  flex: 1;
+  width: 100%;
+}
+
+.settings-panel {
+  margin-bottom: 1rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.money-actions {
+  grid-column: span 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.money-visuals {
+  grid-column: span 5;
+}
+
+.savings-section {
+  grid-column: span 4;
+}
+
+.history-section {
+  grid-column: span 12;
+  margin-top: 1rem;
+}
+
+.footer {
+  background-color: var(--primary-dark);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1rem;
+  border-radius: 16px 16px 0 0;
+}
+
+.footer-images {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.footer-images img {
+  width: 30px;
+  height: 30px;
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.footer-images img:hover {
+  transform: translateY(-3px);
+  opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .money-actions {
+    grid-column: span 4;
+  }
+  
+  .money-visuals {
+    grid-column: span 8;
+  }
+  
+  .savings-section {
+    grid-column: span 6;
+  }
+  
+  .history-section {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .money-actions,
+  .money-visuals,
+  .savings-section,
+  .history-section {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+  
+  .footer-images {
+    gap: 1rem;
+  }
+  
+  .footer-images img {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Animation for page load */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.home-page {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+FILE END
+
+FILE START
+File Location: src/styles/MoneyChart.css
+.money-chart-container {
+  background-color: var(--background-white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.money-chart-container h2 {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.money-chart-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url('/images/chart.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.chart-type-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.chart-type-selector button {
+  background-color: var(--background-light);
+  color: var(--text-secondary);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.chart-type-selector button.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.chart-type-selector button:hover:not(.active):not(:disabled) {
+  background-color: var(--border-color);
+}
+
+.chart-type-selector button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chart-container {
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.empty-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.empty-chart img {
+  width: 120px;
+  height: 120px;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.chart-summary {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--background-light);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.color-box.saved {
+  background-color: var(--primary-color);
+}
+
+.color-box.spent {
+  background-color: var(--danger-color);
+}
+
+/* Animation for chart */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-container canvas {
+  animation: fadeInUp 0.5s ease-out;
+}
+FILE END
+
+FILE START
+File Location: src/styles/RemoveMoney.css
+.remove-money-container {
+  background-color: var(--background-white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: 2px solid var(--secondary-light);
+}
+
+.remove-money-container h2 {
+  color: var(--secondary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remove-money-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url('/images/spend-money.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--secondary-light);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+}
+
+.spend-button {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spend-button:hover {
+  background-color: var(--secondary-dark);
+  transform: translateY(-2px);
+}
+
+.spend-button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spend-button img {
+  width: 24px;
+  height: 24px;
+}
+
+.error-message {
+  background-color: rgba(255, 82, 82, 0.1);
+  color: var(--danger-dark);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--danger-color);
+}
+
+.success-message {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: var(--secondary-dark);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--secondary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.success-message img {
+  width: 24px;
+  height: 24px;
+}
+
+.empty-balance-message {
+  background-color: rgba(117, 117, 117, 0.1);
+  color: var(--text-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty-balance-message img {
+  width: 80px;
+  height: 80px;
+  opacity: 0.7;
+}
+
+/* Animation for button */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.spend-button:active:not(:disabled) {
+  animation: shake 0.5s ease;
+}
+FILE END
+
+FILE START
+File Location: src/styles/SavingsGoals.css
+.savings-goals-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.savings-goals-container h2 {
+    margin-top: 0;
+    color: var(--primary-dark);
+    margin-bottom: 1.5rem;
+}
+
+.savings-goals-container h3 {
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #d32f2f;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.add-goal-form {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.add-goal-button, .contribute-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.add-goal-button:hover, .contribute-button:hover {
+    background-color: var(--primary-dark);
+}
+
+.contribute-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.goals-list {
+    margin-bottom: 1.5rem;
+}
+
+.goal-item {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.goal-item:hover {
+    transform: translateY(-2px);
+}
+
+.goal-item.completed {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+}
+
+.goal-info {
+    flex: 1;
+}
+
+.goal-info h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.goal-progress {
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 4px;
+}
+
+.goal-amounts {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.goal-percentage {
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.select-goal-button, .remove-goal-button {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.select-goal-button {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+    border: 1px solid var(--primary-light);
+}
+
+.select-goal-button:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.remove-goal-button {
+    background-color: white;
+    color: #f44336;
+    border: 1px solid #ffcdd2;
+}
+
+.remove-goal-button:hover {
+    background-color: #ffebee;
+}
+
+.contribute-form {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.empty-goals {
+    text-align: center;
+    padding: 2rem 0;
+    color: #757575;
+}
+
+@media (max-width: 576px) {
+    .goal-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .goal-actions {
+        margin-top: 1rem;
+        width: 100%;
+    }
+    
+    .select-goal-button, .remove-goal-button {
+        flex: 1;
+        text-align: center;
+    }
+}
+FILE END
+
+FILE START
+File Location: src/styles/TransactionHistory.css
+.transaction-history-container {
+  background-color: var(--background-white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-top: 1.5rem;
+}
+
+.transaction-history-container h2 {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transaction-history-container h2::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-image: url('/images/history.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Transaction filters */
+.transaction-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.transaction-filters button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.transaction-filters button:hover {
+  background-color: #f5f5f5;
+}
+
+.transaction-filters button.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Load more button */
+.load-more-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--background-light);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.load-more-button:hover {
+  background-color: #f0f0f0;
+}
+
+.transactions-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+/* Custom scrollbar */
+.transactions-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.transactions-list::-webkit-scrollbar-track {
+  background: var(--background-light);
+  border-radius: 10px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 10px;
+}
+
+.transactions-list::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.transaction-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.transaction-item.add {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left-color: var(--primary-color);
+}
+
+.transaction-item.remove {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-left-color: var(--secondary-color);
+}
+
+.transaction-icon {
+  margin-right: 1rem;
+}
+
+.transaction-icon img {
+  width: 32px;
+  height: 32px;
+}
+
+.transaction-details {
+  flex: 1;
+}
+
+.transaction-description {
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.transaction-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.transaction-amount {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.transaction-item.add .transaction-amount {
+  color: var(--primary-dark);
+}
+
+.transaction-item.remove .transaction-amount {
+  color: var(--secondary-dark);
+}
+
+.empty-transactions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-transactions img {
+  width: 100px;
+  height: 100px;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+.transaction-summary {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--background-light);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-item span:first-child {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.total-added {
+  color: var(--primary-dark);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.total-spent {
+  color: var(--secondary-dark);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.current-balance {
+  color: var(--primary-dark);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Animation for new transactions */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.transaction-item:first-child {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .transaction-summary {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .summary-item {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .transaction-filters {
+    justify-content: center;
+  }
+}
+FILE END
+
+FILE START
+File Location: src/vite-env.d.ts
+/// <reference types="vite/client" />
+
+FILE END
+
+FILE START
+File Location: tsconfig.app.json
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+
+FILE END
+
+FILE START
+File Location: tsconfig.json
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+FILE END
+
+FILE START
+File Location: tsconfig.node.json
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+
+FILE END
+
+FILE START
+File Location: vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+
+FILE END
+
