@@ -1,118 +1,6 @@
-FILE START
-File Location: concatenate-files.js
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Get the directory name in ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-/**
- * Concatenates all files in a directory and its subdirectories into a single text file
- * @param {string} rootDir - The root directory to start from
- * @param {string} outputFile - The path to the output file
- * @param {Array<string>} excludePatterns - Array of patterns to exclude (folders or files)
- */
-function concatenateFiles(rootDir, outputFile, excludePatterns = []) {
-    // Normalize the root directory path
-    rootDir = path.resolve(rootDir);
-
-    // Create or clear the output file
-    fs.writeFileSync(outputFile, '', 'utf8');
-
-    // Function to check if a path should be excluded
-    function shouldExclude(filePath) {
-        const relativePath = path.relative(rootDir, filePath);
-        return excludePatterns.some(pattern => {
-            // Check if the path matches the pattern
-            if (pattern.endsWith('/') || pattern.endsWith('\\')) {
-                // It's a directory pattern
-                const dirPattern = pattern.slice(0, -1);
-                return relativePath.startsWith(dirPattern) ||
-                    relativePath === dirPattern ||
-                    relativePath.includes(`${path.sep}${dirPattern}${path.sep}`);
-            } else {
-                // It's a file pattern
-                return relativePath === pattern ||
-                    relativePath.endsWith(pattern) ||
-                    relativePath.includes(`${path.sep}${pattern}`);
-            }
-        });
-    }
-
-    // Function to process a directory recursively
-    function processDirectory(dirPath) {
-        if (shouldExclude(dirPath)) {
-            return;
-        }
-
-        const items = fs.readdirSync(dirPath);
-
-        for (const item of items) {
-            const itemPath = path.join(dirPath, item);
-            const stats = fs.statSync(itemPath);
-
-            if (shouldExclude(itemPath)) {
-                continue;
-            }
-
-            if (stats.isDirectory()) {
-                processDirectory(itemPath);
-            } else if (stats.isFile()) {
-                try {
-                    // Read the file content
-                    const content = fs.readFileSync(itemPath, 'utf8');
-
-                    // Get the relative path for display
-                    const relativePath = path.relative(rootDir, itemPath);
-
-                    // Format the output
-                    const output = [
-                        'FILE START',
-                        `File Location: ${relativePath.replace(/\\/g, '/')}`,
-                        content,
-                        'FILE END',
-                        '\n'
-                    ].join('\n');
-
-                    // Append to the output file
-                    fs.appendFileSync(outputFile, output, 'utf8');
-                    console.log(`Processed: ${relativePath}`);
-                } catch (error) {
-                    console.error(`Error processing file ${itemPath}: ${error.message}`);
-                }
-            }
-        }
-    }
-
-    // Start processing from the root directory
-    processDirectory(rootDir);
-    console.log(`All files have been concatenated to ${outputFile}`);
-}
-
-// Parse command line arguments if script is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-    const args = process.argv.slice(2);
-
-    if (args.length < 2) {
-        console.log('Usage: node concatenate-files.js <rootDir> <outputFile> [excludePattern1,excludePattern2,...]');
-        process.exit(1);
-    }
-
-    const rootDir = args[0];
-    const outputFile = args[1];
-    const excludePatterns = args[2] ? args[2].split(',') : ['node_modules/', 'package-lock.json', '.git/'];
-
-    concatenateFiles(rootDir, outputFile, excludePatterns);
-}
-
-// Export the function
-export default concatenateFiles;
-FILE END
-
-FILE START
-File Location: eslint.config.js
+// eslint.config.js
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -142,10 +30,10 @@ export default tseslint.config(
   },
 )
 
-FILE END
 
-FILE START
-File Location: example-usage.js
+
+
+// example-usage.js
 import concatenateFiles from './concatenate-files.js';
 
 // Example usage
@@ -161,10 +49,10 @@ concatenateFiles(
         'concatenated-codebase.txt' // Exclude the output file itself
     ]
 );
-FILE END
 
-FILE START
-File Location: index.html
+
+
+// index.html
 <!doctype html>
 <html lang="en">
   <head>
@@ -179,10 +67,10 @@ File Location: index.html
   </body>
 </html>
 
-FILE END
 
-FILE START
-File Location: package.json
+
+
+// package.json
 {
   "name": "pocket-money-tracker",
   "private": true,
@@ -217,20 +105,670 @@ File Location: package.json
   }
 }
 
-FILE END
 
-FILE START
-File Location: public/images/piggy-bank.svg
 
-FILE END
 
-FILE START
-File Location: public/vite.svg
+// public/images/characters/piggy-excited.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Piggy Bank Character - Excited Mood -->
+  <!-- Body - slightly larger/bouncing -->
+  <ellipse cx="50" cy="55" rx="42" ry="32" fill="#FF6D9F" />
+  <!-- Head -->
+  <circle cx="50" cy="35" r="25" fill="#FF6D9F" />
+  <!-- Ears -->
+  <ellipse cx="30" cy="20" rx="12" ry="14" fill="#FF8CAF" transform="rotate(-25 30 20)" />
+  <ellipse cx="70" cy="20" rx="12" ry="14" fill="#FF8CAF" transform="rotate(25 70 20)" />
+  <!-- Eyes - Wide excited -->
+  <circle cx="40" cy="30" r="6" fill="white" />
+  <circle cx="60" cy="30" r="6" fill="white" />
+  <circle cx="40" cy="30" r="3" fill="black" />
+  <circle cx="60" cy="30" r="3" fill="black" />
+  <!-- Eyebrows - raised -->
+  <path d="M34,22 Q40,18 46,22" stroke="#FF417D" stroke-width="2" fill="none" />
+  <path d="M54,22 Q60,18 66,22" stroke="#FF417D" stroke-width="2" fill="none" />
+  <!-- Nose -->
+  <ellipse cx="50" cy="40" rx="8" ry="6" fill="#FF5286" />
+  <circle cx="46" cy="39" r="2" fill="white" />
+  <!-- Mouth - Open excited -->
+  <ellipse cx="50" cy="48" rx="8" ry="5" fill="#FF417D" />
+  <!-- Slot -->
+  <rect x="40" y="60" width="20" height="3" rx="1" fill="#FF417D" />
+  <!-- Four Legs - bouncing pose -->
+  <rect x="25" y="82" width="8" height="13" rx="4" fill="#FF6D9F" />
+  <rect x="67" y="82" width="8" height="13" rx="4" fill="#FF6D9F" />
+  <rect x="35" y="87" width="8" height="8" rx="4" fill="#FF6D9F" />
+  <rect x="57" y="87" width="8" height="8" rx="4" fill="#FF6D9F" />
+  <!-- Tail - excited wiggle -->
+  <path d="M10,60 Q0,55 5,45 Q10,35 5,30" stroke="#FF6D9F" stroke-width="4" fill="none" />
+  <!-- Stars and excitement indicators -->
+  <path d="M20,15 L22,10 L24,15 L20,13 L24,13 Z" fill="#FFD700" />
+  <path d="M80,15 L82,10 L84,15 L80,13 L84,13 Z" fill="#FFD700" />
+  <path d="M15,40 L17,35 L19,40 L15,38 L19,38 Z" fill="#FFD700" />
+  <path d="M85,40 L87,35 L89,40 L85,38 L89,38 Z" fill="#FFD700" />
+  <!-- Motion lines -->
+  <path d="M85,55 L95,55" stroke="#FFD700" stroke-width="2" />
+  <path d="M85,60 L95,60" stroke="#FFD700" stroke-width="2" />
+  <path d="M15,55 L5,55" stroke="#FFD700" stroke-width="2" />
+  <path d="M15,60 L5,60" stroke="#FFD700" stroke-width="2" />
+</svg>
+
+
+
+
+// public/images/characters/piggy-happy.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Piggy Bank Character - Happy Mood -->
+  <!-- Body -->
+  <ellipse cx="50" cy="55" rx="40" ry="30" fill="#FF6D9F" />
+  <!-- Head -->
+  <circle cx="50" cy="35" r="25" fill="#FF6D9F" />
+  <!-- Ears -->
+  <ellipse cx="30" cy="20" rx="10" ry="12" fill="#FF8CAF" transform="rotate(-15 30 20)" />
+  <ellipse cx="70" cy="20" rx="10" ry="12" fill="#FF8CAF" transform="rotate(15 70 20)" />
+  <!-- Eyes - Happy -->
+  <path d="M35,28 Q40,35 45,28" stroke="black" stroke-width="2" fill="none" />
+  <path d="M55,28 Q60,35 65,28" stroke="black" stroke-width="2" fill="none" />
+  <!-- Nose -->
+  <ellipse cx="50" cy="40" rx="8" ry="6" fill="#FF5286" />
+  <circle cx="46" cy="39" r="2" fill="white" />
+  <!-- Mouth - Smiling -->
+  <path d="M40,45 Q50,55 60,45" stroke="#FF417D" stroke-width="2" fill="none" />
+  <!-- Slot -->
+  <rect x="40" y="60" width="20" height="3" rx="1" fill="#FF417D" />
+  <!-- Four Legs -->
+  <rect x="25" y="80" width="8" height="15" rx="4" fill="#FF6D9F" />
+  <rect x="67" y="80" width="8" height="15" rx="4" fill="#FF6D9F" />
+  <rect x="35" y="85" width="8" height="10" rx="4" fill="#FF6D9F" />
+  <rect x="57" y="85" width="8" height="10" rx="4" fill="#FF6D9F" />
+  <!-- Tail - Wagging -->
+  <path d="M10,60 Q5,50 10,40" stroke="#FF6D9F" stroke-width="4" fill="none" />
+  <!-- Sparkles for happy mood -->
+  <path d="M20,25 L22,20 L24,25 L20,23 L24,23 Z" fill="#FFD700" />
+  <path d="M80,25 L82,20 L84,25 L80,23 L84,23 Z" fill="#FFD700" />
+</svg>
+
+
+
+
+// public/images/characters/piggy-neutral.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Piggy Bank Character - Neutral Mood -->
+  <!-- Body -->
+  <ellipse cx="50" cy="55" rx="40" ry="30" fill="#FF6D9F" />
+  <!-- Head -->
+  <circle cx="50" cy="35" r="25" fill="#FF6D9F" />
+  <!-- Ears -->
+  <ellipse cx="30" cy="20" rx="10" ry="12" fill="#FF8CAF" transform="rotate(-15 30 20)" />
+  <ellipse cx="70" cy="20" rx="10" ry="12" fill="#FF8CAF" transform="rotate(15 70 20)" />
+  <!-- Eyes -->
+  <circle cx="40" cy="30" r="5" fill="white" />
+  <circle cx="60" cy="30" r="5" fill="white" />
+  <circle cx="40" cy="30" r="2" fill="black" />
+  <circle cx="60" cy="30" r="2" fill="black" />
+  <!-- Nose -->
+  <ellipse cx="50" cy="40" rx="8" ry="6" fill="#FF5286" />
+  <circle cx="46" cy="39" r="2" fill="white" />
+  <!-- Slot -->
+  <rect x="40" y="60" width="20" height="3" rx="1" fill="#FF417D" />
+  <!-- Four Legs -->
+  <rect x="25" y="80" width="8" height="15" rx="4" fill="#FF6D9F" />
+  <rect x="67" y="80" width="8" height="15" rx="4" fill="#FF6D9F" />
+  <rect x="35" y="85" width="8" height="10" rx="4" fill="#FF6D9F" />
+  <rect x="57" y="85" width="8" height="10" rx="4" fill="#FF6D9F" />
+  <!-- Tail -->
+  <path d="M10,60 Q0,50 10,40" stroke="#FF6D9F" stroke-width="4" fill="none" />
+</svg>
+
+
+
+
+// public/images/characters/robot-excited.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Robot Character - Excited Mood -->
+  <!-- Robot Head - tilted slightly in excitement -->
+  <rect x="30" y="20" width="40" height="30" rx="5" fill="#2196F3" transform="rotate(5 50 35)" />
+  <!-- Antenna with rapidly blinking light -->
+  <line x1="50" y1="20" x2="50" y2="5" stroke="#90CAF9" stroke-width="3" transform="rotate(5 50 35)" />
+  <circle cx="50" cy="3" r="5" fill="#F44336" />
+  <circle cx="50" cy="3" r="8" fill="none" stroke="#FFEB3B" stroke-width="1.5" />
+  <circle cx="50" cy="3" r="12" fill="none" stroke="#FFEB3B" stroke-width="1" />
+  <!-- Eyes - wide with excitement -->
+  <rect x="36" y="29" width="12" height="10" rx="5" fill="#E3F2FD" transform="rotate(5 50 35)" />
+  <rect x="52" y="31" width="12" height="10" rx="5" fill="#E3F2FD" transform="rotate(5 50 35)" />
+  <circle cx="42" cy="34" r="4" fill="#0D47A1" transform="rotate(5 50 35)" />
+  <circle cx="58" cy="36" r="4" fill="#0D47A1" transform="rotate(5 50 35)" />
+  <!-- Eyebrows raised in excitement -->
+  <path d="M36,25 L48,23" stroke="#90CAF9" stroke-width="2" />
+  <path d="M52,25 L64,23" stroke="#90CAF9" stroke-width="2" />
+  <!-- Mouth - Open in excitement -->
+  <rect x="40" y="44" width="20" height="8" rx="4" fill="#BBDEFB" transform="rotate(5 50 35)" />
+  <line x1="43" y1="48" x2="57" y2="48" stroke="#0D47A1" stroke-width="1.5" />
+  <!-- Neck -->
+  <rect x="45" y="50" width="10" height="5" fill="#90CAF9" />
+  <!-- Body - bouncing up slightly -->
+  <rect x="25" y="54" width="50" height="30" rx="3" fill="#2196F3" />
+  <!-- Control Panel - with flashing lights -->
+  <rect x="35" y="59" width="30" height="15" rx="2" fill="#0D47A1" />
+  <!-- Control Buttons - flashing colors -->
+  <circle cx="40" cy="64" r="3" fill="#F44336" />
+  <circle cx="50" cy="64" r="3" fill="#FFEB3B" />
+  <circle cx="60" cy="64" r="3" fill="#4CAF50" />
+  <!-- Dial spinning -->
+  <circle cx="50" cy="71" r="4" fill="#BBDEFB" />
+  <path d="M50,71 L54,73 L50,75 L46,73 Z" fill="#0D47A1" transform="rotate(45 50 71)" />
+  <!-- Arms - raised high in excitement -->
+  <rect x="15" y="56" width="10" height="25" rx="3" fill="#90CAF9" transform="rotate(-30 15 65)" />
+  <rect x="75" y="56" width="10" height="25" rx="3" fill="#90CAF9" transform="rotate(30 85 65)" />
+  <!-- Hands waving excitedly -->
+  <circle cx="6" cy="76" r="5" fill="#BBDEFB" />
+  <circle cx="94" cy="76" r="5" fill="#BBDEFB" />
+  <!-- Legs - bouncing stance -->
+  <rect x="35" y="84" width="10" height="15" rx="3" fill="#1976D2" transform="rotate(-5 40 84)" />
+  <rect x="55" y="84" width="10" height="15" rx="3" fill="#1976D2" transform="rotate(5 60 84)" />
+  <!-- Feet -->
+  <rect x="31" y="96" width="16" height="4" rx="2" fill="#0D47A1" transform="rotate(-5 39 98)" />
+  <rect x="53" y="96" width="16" height="4" rx="2" fill="#0D47A1" transform="rotate(5 61 98)" />
+  <!-- Excitement indicators -->
+  <path d="M15,15 L10,10 M25,10 L20,5" stroke="#FFEB3B" stroke-width="1.5" />
+  <path d="M75,15 L80,10 M85,15 L90,10" stroke="#FFEB3B" stroke-width="1.5" />
+  <path d="M85,35 L90,35 M85,40 L90,40" stroke="#FFEB3B" stroke-width="1.5" />
+  <path d="M15,35 L10,35 M15,40 L10,40" stroke="#FFEB3B" stroke-width="1.5" />
+</svg>
+
+
+
+
+// public/images/characters/robot-happy.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Robot Character - Happy Mood -->
+  <!-- Robot Head -->
+  <rect x="30" y="20" width="40" height="30" rx="5" fill="#2196F3" />
+  <!-- Antenna with bouncing light -->
+  <line x1="50" y1="20" x2="50" y2="10" stroke="#90CAF9" stroke-width="3" />
+  <circle cx="50" cy="8" r="4" fill="#4CAF50" /> <!-- Green for happy -->
+  <!-- Eyes - happy curved screens -->
+  <rect x="37" y="30" width="10" height="8" rx="4" fill="#E3F2FD" />
+  <rect x="53" y="30" width="10" height="8" rx="4" fill="#E3F2FD" />
+  <path d="M38,35 Q42,31 46,35" stroke="#0D47A1" stroke-width="2" fill="none" />
+  <path d="M54,35 Q58,31 62,35" stroke="#0D47A1" stroke-width="2" fill="none" />
+  <!-- Mouth - Smiling -->
+  <path d="M40,42 Q50,48 60,42" stroke="#BBDEFB" stroke-width="3" fill="none" />
+  <!-- Neck -->
+  <rect x="45" y="50" width="10" height="5" fill="#90CAF9" />
+  <!-- Body -->
+  <rect x="25" y="55" width="50" height="30" rx="3" fill="#2196F3" />
+  <!-- Control Panel - with happy indicators -->
+  <rect x="35" y="60" width="30" height="15" rx="2" fill="#0D47A1" />
+  <!-- Control Buttons - all green for happy mood -->
+  <circle cx="40" cy="65" r="2" fill="#4CAF50" />
+  <circle cx="50" cy="65" r="2" fill="#4CAF50" />
+  <circle cx="60" cy="65" r="2" fill="#4CAF50" />
+  <!-- Dial pointing up (happy) -->
+  <circle cx="50" cy="72" r="4" fill="#BBDEFB" />
+  <line x1="50" y1="72" x2="50" y2="68" stroke="#0D47A1" stroke-width="1.5" />
+  <!-- Arms - slightly raised in happiness -->
+  <rect x="15" y="58" width="10" height="25" rx="3" fill="#90CAF9" transform="rotate(-10 15 58)" />
+  <rect x="75" y="58" width="10" height="25" rx="3" fill="#90CAF9" transform="rotate(10 85 58)" />
+  <!-- Hands - waving -->
+  <circle cx="16" cy="86" r="5" fill="#BBDEFB" />
+  <circle cx="84" cy="86" r="5" fill="#BBDEFB" />
+  <!-- Legs -->
+  <rect x="35" y="85" width="10" height="15" rx="2" fill="#1976D2" />
+  <rect x="55" y="85" width="10" height="15" rx="2" fill="#1976D2" />
+  <!-- Feet -->
+  <rect x="32" y="97" width="16" height="3" rx="1" fill="#0D47A1" />
+  <rect x="52" y="97" width="16" height="3" rx="1" fill="#0D47A1" />
+  <!-- Happy indicators -->
+  <path d="M25,25 L20,20 M30,15 L25,10" stroke="#FFC107" stroke-width="1.5" />
+  <path d="M75,25 L80,20 M70,15 L75,10" stroke="#FFC107" stroke-width="1.5" />
+</svg>
+
+
+
+
+// public/images/characters/robot-neutral.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Robot Character - Neutral Mood -->
+  <!-- Robot Head -->
+  <rect x="30" y="20" width="40" height="30" rx="5" fill="#2196F3" />
+  <!-- Antenna -->
+  <line x1="50" y1="20" x2="50" y2="10" stroke="#90CAF9" stroke-width="3" />
+  <circle cx="50" cy="8" r="4" fill="#F44336" />
+  <!-- Eyes -->
+  <rect x="37" y="30" width="10" height="8" rx="2" fill="#E3F2FD" />
+  <rect x="53" y="30" width="10" height="8" rx="2" fill="#E3F2FD" />
+  <circle cx="42" cy="34" r="2" fill="#0D47A1" />
+  <circle cx="58" cy="34" r="2" fill="#0D47A1" />
+  <!-- Mouth -->
+  <rect x="40" y="42" width="20" height="3" rx="1" fill="#BBDEFB" />
+  <!-- Neck -->
+  <rect x="45" y="50" width="10" height="5" fill="#90CAF9" />
+  <!-- Body -->
+  <rect x="25" y="55" width="50" height="30" rx="3" fill="#2196F3" />
+  <!-- Control Panel -->
+  <rect x="35" y="60" width="30" height="15" rx="2" fill="#0D47A1" />
+  <!-- Control Buttons -->
+  <circle cx="40" cy="65" r="2" fill="#F44336" />
+  <circle cx="50" cy="65" r="2" fill="#4CAF50" />
+  <circle cx="60" cy="65" r="2" fill="#FFC107" />
+  <!-- Dial -->
+  <circle cx="50" cy="72" r="4" fill="#BBDEFB" />
+  <line x1="50" y1="72" x2="53" y2="72" stroke="#0D47A1" stroke-width="1.5" />
+  <!-- Arms -->
+  <rect x="15" y="60" width="10" height="25" rx="3" fill="#90CAF9" />
+  <rect x="75" y="60" width="10" height="25" rx="3" fill="#90CAF9" />
+  <!-- Hands -->
+  <circle cx="20" cy="90" r="5" fill="#BBDEFB" />
+  <circle cx="80" cy="90" r="5" fill="#BBDEFB" />
+  <!-- Legs -->
+  <rect x="35" y="85" width="10" height="15" rx="2" fill="#1976D2" />
+  <rect x="55" y="85" width="10" height="15" rx="2" fill="#1976D2" />
+  <!-- Feet -->
+  <rect x="32" y="97" width="16" height="3" rx="1" fill="#0D47A1" />
+  <rect x="52" y="97" width="16" height="3" rx="1" fill="#0D47A1" />
+</svg>
+
+
+
+
+// public/images/characters/unicorn-excited.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Unicorn Character - Excited Mood -->
+  <!-- Body - slightly raised in excitement -->
+  <ellipse cx="50" cy="63" rx="35" ry="25" fill="#E1BEE7" />
+  <!-- Head - slightly raised -->
+  <circle cx="25" cy="38" r="15" fill="#E1BEE7" />
+  <!-- Ears - perked up -->
+  <path d="M15,30 L8,15 L20,23 Z" fill="#CE93D8" />
+  <path d="M20,26 L13,10 L25,18 Z" fill="#CE93D8" />
+  <!-- Horn with extra sparkles -->
+  <path d="M25,23 L15,3" stroke="#FFC107" stroke-width="5" stroke-linecap="round" />
+  <circle cx="15" cy="3" r="3" fill="#FFEB3B" />
+  <path d="M12,0 L18,6 M11,3 L19,3 M15,-2 L15,8" stroke="#FFEB3B" stroke-width="1.5" />
+  <!-- More sparkles around horn -->
+  <path d="M20,15 L22,12 L24,15 L20,14 L24,14 Z" fill="#FFEB3B" />
+  <path d="M10,15 L12,12 L14,15 L10,14 L14,14 Z" fill="#FFEB3B" />
+  <!-- Mane with vibrant rainbow colors -->
+  <path d="M30,28 C45,18 55,28 60,43" stroke="#9C27B0" stroke-width="10" fill="none" />
+  <path d="M30,28 C45,18 55,28 60,43" stroke="#2196F3" stroke-width="8" fill="none" />
+  <path d="M30,28 C45,18 55,28 60,43" stroke="#4CAF50" stroke-width="6" fill="none" />
+  <path d="M30,28 C45,18 55,28 60,43" stroke="#FFC107" stroke-width="4" fill="none" />
+  <path d="M30,28 C45,18 55,28 60,43" stroke="#F44336" stroke-width="2" fill="none" />
+  <!-- Eyes - wide with excitement -->
+  <circle cx="20" cy="36" r="4" fill="white" />
+  <circle cx="20" cy="36" r="2" fill="black" />
+  <!-- Eyebrows raised in excitement -->
+  <path d="M15,30 L25,30" stroke="#7B1FA2" stroke-width="1.5" />
+  <!-- Nose -->
+  <ellipse cx="12" cy="40" rx="3" ry="2" fill="#CE93D8" />
+  <!-- Mouth - open in excitement -->
+  <ellipse cx="20" cy="45" rx="5" ry="4" fill="#7B1FA2" />
+  <ellipse cx="20" cy="45" rx="3" ry="2" fill="#E1BEE7" />
+  <!-- Tail with vibrant rainbow colors, bouncing -->
+  <path d="M85,63 C100,50 95,35 90,30" stroke="#9C27B0" stroke-width="8" fill="none" />
+  <path d="M85,63 C100,50 95,35 90,30" stroke="#2196F3" stroke-width="6" fill="none" />
+  <path d="M85,63 C100,50 95,35 90,30" stroke="#4CAF50" stroke-width="4" fill="none" />
+  <path d="M85,63 C100,50 95,35 90,30" stroke="#FFC107" stroke-width="2" fill="none" />
+  <!-- Legs - in bouncing position -->
+  <rect x="30" y="83" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="40" y="83" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="55" y="83" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="65" y="83" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <!-- Excitement stars and sparkles all around -->
+  <path d="M35,25 L37,20 L39,25 L35,23 L39,23 Z" fill="#FFEB3B" />
+  <path d="M70,40 L72,35 L74,40 L70,38 L74,38 Z" fill="#FFEB3B" />
+  <path d="M50,15 L52,10 L54,15 L50,13 L54,13 Z" fill="#FFEB3B" />
+  <path d="M80,20 L82,15 L84,20 L80,18 L84,18 Z" fill="#FFEB3B" />
+  <path d="M40,10 L42,5 L44,10 L40,8 L44,8 Z" fill="#FFEB3B" />
+  <!-- Motion lines -->
+  <path d="M90,50 L95,50 M90,55 L95,55 M90,60 L95,60" stroke="#FFEB3B" stroke-width="1.5" />
+  <path d="M10,50 L5,50 M10,55 L5,55 M10,60 L5,60" stroke="#FFEB3B" stroke-width="1.5" />
+</svg>
+
+
+
+
+// public/images/characters/unicorn-happy.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Unicorn Character - Happy Mood -->
+  <!-- Body -->
+  <ellipse cx="50" cy="65" rx="35" ry="25" fill="#E1BEE7" />
+  <!-- Head -->
+  <circle cx="25" cy="40" r="15" fill="#E1BEE7" />
+  <!-- Ears -->
+  <path d="M15,32 L10,20 L20,25 Z" fill="#CE93D8" />
+  <path d="M20,28 L15,15 L25,20 Z" fill="#CE93D8" />
+  <!-- Horn with sparkles -->
+  <path d="M25,25 L15,5" stroke="#FFC107" stroke-width="4" stroke-linecap="round" />
+  <circle cx="15" cy="5" r="2" fill="#FFEB3B" />
+  <path d="M13,2 L17,8 M12,5 L18,5" stroke="#FFEB3B" stroke-width="1" />
+  <!-- Mane with rainbow colors -->
+  <path d="M30,30 C45,20 55,30 60,45" stroke="#9C27B0" stroke-width="8" fill="none" />
+  <path d="M30,30 C45,20 55,30 60,45" stroke="#2196F3" stroke-width="6" fill="none" />
+  <path d="M30,30 C45,20 55,30 60,45" stroke="#4CAF50" stroke-width="4" fill="none" />
+  <path d="M30,30 C45,20 55,30 60,45" stroke="#FFC107" stroke-width="2" fill="none" />
+  <!-- Eyes - happy curved -->
+  <circle cx="20" cy="38" r="3" fill="white" />
+  <path d="M17,37 Q20,41 23,37" stroke="black" stroke-width="1.5" fill="none" />
+  <!-- Nose -->
+  <ellipse cx="12" cy="42" rx="3" ry="2" fill="#CE93D8" />
+  <!-- Mouth - smiling -->
+  <path d="M15,45 Q20,48 25,45" stroke="#7B1FA2" stroke-width="1.5" fill="none" />
+  <!-- Tail with rainbow colors -->
+  <path d="M85,65 C95,55 95,45 90,40" stroke="#9C27B0" stroke-width="6" fill="none" />
+  <path d="M85,65 C95,55 95,45 90,40" stroke="#2196F3" stroke-width="4" fill="none" />
+  <path d="M85,65 C95,55 95,45 90,40" stroke="#4CAF50" stroke-width="2" fill="none" />
+  <!-- Legs -->
+  <rect x="30" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="40" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="55" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="65" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <!-- Happy stars -->
+  <path d="M35,30 L37,25 L39,30 L35,28 L39,28 Z" fill="#FFEB3B" />
+  <path d="M70,50 L72,45 L74,50 L70,48 L74,48 Z" fill="#FFEB3B" />
+</svg>
+
+
+
+
+// public/images/characters/unicorn-neutral.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Unicorn Character - Neutral Mood -->
+  <!-- Body -->
+  <ellipse cx="50" cy="65" rx="35" ry="25" fill="#E1BEE7" />
+  <!-- Head -->
+  <circle cx="25" cy="40" r="15" fill="#E1BEE7" />
+  <!-- Ears -->
+  <path d="M15,32 L10,20 L20,25 Z" fill="#CE93D8" />
+  <path d="M20,28 L15,15 L25,20 Z" fill="#CE93D8" />
+  <!-- Horn -->
+  <path d="M25,25 L15,5" stroke="#FFC107" stroke-width="4" stroke-linecap="round" />
+  <!-- Mane -->
+  <path d="M30,30 C45,20 55,30 60,45" stroke="#9C27B0" stroke-width="8" fill="none" />
+  <!-- Eyes -->
+  <circle cx="20" cy="38" r="3" fill="white" />
+  <circle cx="20" cy="38" r="1.5" fill="black" />
+  <!-- Nose -->
+  <ellipse cx="12" cy="42" rx="3" ry="2" fill="#CE93D8" />
+  <!-- Mouth -->
+  <line x1="15" y1="45" x2="20" y2="45" stroke="#7B1FA2" stroke-width="1.5" />
+  <!-- Tail -->
+  <path d="M85,65 C95,55 95,45 90,40" stroke="#9C27B0" stroke-width="6" fill="none" />
+  <!-- Legs -->
+  <rect x="30" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="40" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="55" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+  <rect x="65" y="85" width="5" height="15" rx="2.5" fill="#E1BEE7" />
+</svg>
+
+
+
+
+// public/images/characters/wizard-excited.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wizard Character - Excited Mood -->
+  <!-- Wizard Hat - slightly tilted for excitement -->
+  <path d="M32,35 L50,0 L68,35" fill="#673AB7" transform="rotate(5 50 35)" />
+  <path d="M25,35 L75,35 L75,40 C75,45 65,50 50,50 C35,50 25,45 25,40 Z" fill="#9575CD" transform="rotate(5 50 35)" />
+  <!-- Hat Stars -->
+  <path d="M50,15 L52,20 L58,20 L53,24 L55,30 L50,26 L45,30 L47,24 L42,20 L48,20 Z" fill="#FFD700" />
+  <path d="M40,20 L41,23 L44,23 L42,25 L43,28 L40,26 L37,28 L38,25 L36,23 L39,23 Z" fill="#FFD700" />
+  <path d="M60,20 L61,23 L64,23 L62,25 L63,28 L60,26 L57,28 L58,25 L56,23 L59,23 Z" fill="#FFD700" />
+  <!-- Face -->
+  <circle cx="50" cy="60" r="15" fill="#FFDBAC" />
+  <!-- Eyes - Wide excited -->
+  <circle cx="43" cy="55" r="4" fill="white" />
+  <circle cx="57" cy="55" r="4" fill="white" />
+  <circle cx="43" cy="55" r="2" fill="#333" />
+  <circle cx="57" cy="55" r="2" fill="#333" />
+  <!-- Eyebrows - raised -->
+  <path d="M39,50 L47,48" stroke="#333" stroke-width="1.5" />
+  <path d="M53,48 L61,50" stroke="#333" stroke-width="1.5" />
+  <!-- Open mouth in awe -->
+  <ellipse cx="50" cy="65" rx="5" ry="4" fill="#333" />
+  <!-- Beard - flowing more with excitement -->
+  <path d="M40,60 Q50,88 60,60" fill="#E0E0E0" />
+  <!-- Robe Body -->
+  <path d="M35,70 L30,100 L70,100 L65,70" fill="#673AB7" />
+  <!-- Robe Top -->
+  <path d="M35,70 L40,65 Q50,60 60,65 L65,70" fill="#9575CD" />
+  <!-- Arms - more animated pose -->
+  <path d="M35,70 L20,75" stroke="#9575CD" stroke-width="5" fill="none" />
+  <path d="M65,70 L80,70" stroke="#9575CD" stroke-width="5" fill="none" />
+  <!-- Wand with lots of magic -->
+  <line x1="80" y1="70" x2="90" y2="65" stroke="#4A148C" stroke-width="2" />
+  <circle cx="92" cy="63" r="5" fill="#FFD700" />
+  <!-- Magic burst -->
+  <path d="M92,63 L96,60 M92,63 L98,63 M92,63 L96,66 M92,63 L92,58 M92,63 L92,68 M92,63 L88,60 M92,63 L86,63 M92,63 L88,66" stroke="#FFD700" stroke-width="1.5" />
+  <!-- Magic sparkles all around -->
+  <path d="M83,50 L85,47 L87,50 L83,49 L87,49 Z" fill="#FFD700" />
+  <path d="M100,80 L102,77 L104,80 L100,79 L104,79 Z" fill="#FFD700" />
+  <path d="M80,90 L82,87 L84,90 L80,89 L84,89 Z" fill="#FFD700" />
+  <path d="M70,50 L72,47 L74,50 L70,49 L74,49 Z" fill="#FFD700" />
+</svg>
+
+
+
+
+// public/images/characters/wizard-happy.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wizard Character - Happy Mood -->
+  <!-- Wizard Hat -->
+  <path d="M30,35 L50,5 L70,35" fill="#673AB7" />
+  <path d="M25,35 L75,35 L75,40 C75,45 65,50 50,50 C35,50 25,45 25,40 Z" fill="#9575CD" />
+  <!-- Hat Star -->
+  <path d="M50,15 L52,20 L58,20 L53,24 L55,30 L50,26 L45,30 L47,24 L42,20 L48,20 Z" fill="#FFD700" />
+  <!-- Face -->
+  <circle cx="50" cy="60" r="15" fill="#FFDBAC" />
+  <!-- Eyes - Happy curved -->
+  <path d="M40,53 Q43,57 46,53" stroke="#333" stroke-width="2" fill="none" />
+  <path d="M54,53 Q57,57 60,53" stroke="#333" stroke-width="2" fill="none" />
+  <!-- Smile -->
+  <path d="M43,65 Q50,70 57,65" stroke="#333" stroke-width="2" fill="none" />
+  <!-- Beard -->
+  <path d="M40,60 Q50,83 60,60" fill="#E0E0E0" />
+  <!-- Robe Body -->
+  <path d="M35,70 L30,100 L70,100 L65,70" fill="#673AB7" />
+  <!-- Robe Top -->
+  <path d="M35,70 L40,65 Q50,60 60,65 L65,70" fill="#9575CD" />
+  <!-- Arms -->
+  <path d="M35,70 L25,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <path d="M65,70 L75,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <!-- Wand with magic sparkles -->
+  <line x1="75" y1="85" x2="85" y2="75" stroke="#4A148C" stroke-width="2" />
+  <circle cx="87" cy="73" r="4" fill="#FFD700" />
+  <!-- Magic sparkles -->
+  <path d="M83,68 L85,65 L87,68 L83,67 L87,67 Z" fill="#FFD700" />
+  <path d="M90,80 L92,77 L94,80 L90,79 L94,79 Z" fill="#FFD700" />
+  <path d="M80,80 L82,77 L84,80 L80,79 L84,79 Z" fill="#FFD700" />
+</svg>
+
+
+
+
+// public/images/characters/wizard-neutral.svg
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wizard Character - Neutral Mood -->
+  <!-- Wizard Hat -->
+  <path d="M30,35 L50,5 L70,35" fill="#673AB7" />
+  <path d="M25,35 L75,35 L75,40 C75,45 65,50 50,50 C35,50 25,45 25,40 Z" fill="#9575CD" />
+  <!-- Hat Star -->
+  <path d="M50,15 L52,20 L58,20 L53,24 L55,30 L50,26 L45,30 L47,24 L42,20 L48,20 Z" fill="#FFD700" />
+  <!-- Face -->
+  <circle cx="50" cy="60" r="15" fill="#FFDBAC" />
+  <!-- Eyes -->
+  <circle cx="43" cy="55" r="3" fill="white" />
+  <circle cx="57" cy="55" r="3" fill="white" />
+  <circle cx="43" cy="55" r="1" fill="#333" />
+  <circle cx="57" cy="55" r="1" fill="#333" />
+  <!-- Beard -->
+  <path d="M40,60 Q50,80 60,60" fill="#E0E0E0" />
+  <!-- Robe Body -->
+  <path d="M35,70 L30,100 L70,100 L65,70" fill="#673AB7" />
+  <!-- Robe Top -->
+  <path d="M35,70 L40,65 Q50,60 60,65 L65,70" fill="#9575CD" />
+  <!-- Arms -->
+  <path d="M35,70 L25,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <path d="M65,70 L75,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <!-- Wand -->
+  <line x1="75" y1="85" x2="85" y2="75" stroke="#4A148C" stroke-width="2" />
+  <circle cx="87" cy="73" r="3" fill="#FFD700" />
+</svg>
+
+
+
+
+// public/images/coin.svg
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="18" fill="#FFD700" stroke="#E6B800" stroke-width="2"/>
+  <circle cx="20" cy="20" r="15" fill="#FFEC4F"/>
+  <text x="20" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#B8860B">£</text>
+  <circle cx="20" cy="20" r="10" fill="none" stroke="#E6B800" stroke-width="1" stroke-dasharray="2 1"/>
+</svg>
+
+
+
+
+// public/images/coins.svg
+<svg width="60" height="40" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="15" fill="#FFD700" stroke="#E6B800" stroke-width="2"/>
+  <circle cx="20" cy="20" r="10" fill="#FFEC4F"/>
+  <text x="20" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#B8860B">u00a3</text>
+  
+  <circle cx="35" cy="15" r="15" fill="#FFC107" stroke="#FF8F00" stroke-width="2"/>
+  <circle cx="35" cy="15" r="10" fill="#FFE082"/>
+  <text x="35" y="20" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#FF8F00">u00a3</text>
+  
+  <circle cx="40" cy="30" r="15" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
+  <circle cx="40" cy="30" r="10" fill="#FFF9C4"/>
+  <text x="40" y="35" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#FBC02D">u00a3</text>
+</svg>
+
+
+
+
+// public/images/empty-list.svg
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="15" width="60" height="70" rx="4" fill="#E3F2FD" stroke="#64B5F6" stroke-width="2"/>
+  <line x1="30" y1="30" x2="70" y2="30" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="40" x2="70" y2="40" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="50" x2="70" y2="50" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="60" x2="50" y2="60" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="60" cy="70" r="15" fill="#BBDEFB" opacity="0.6"/>
+  <path d="M55 70L58 73L65 66" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="50" y="90" font-family="Arial" font-size="8" font-weight="bold" fill="#64B5F6" text-anchor="middle">No items yet</text>
+</svg>
+
+
+
+
+// public/images/empty-piggy.svg
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M90 45C90 34.5 81.5 26 71 26H55C44.5 26 36 34.5 36 45V65C36 75.5 44.5 84 55 84H71C81.5 84 90 75.5 90 65V45Z" fill="#FFCDD2" stroke="#E57373" stroke-width="3"/>
+  <ellipse cx="45" cy="45" rx="5" ry="5" fill="#FFEBEE"/>
+  <ellipse cx="75" cy="45" rx="5" ry="5" fill="#FFEBEE"/>
+  <path d="M55 65H71" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M95 50H90" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M30 50H36" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M63 26V20" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M55 90L49 100" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M71 90L77 100" stroke="#E57373" stroke-width="3" stroke-linecap="round"/>
+  <path d="M60 55C60 55 65 60 75 58" stroke="#E57373" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 2"/>
+  <text x="60" y="110" font-family="Arial" font-size="10" font-weight="bold" fill="#E57373" text-anchor="middle">Empty</text>
+</svg>
+
+
+
+
+// public/images/history.svg
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+
+
+
+
+// public/images/home.svg
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+
+
+
+
+// public/images/money-in.svg
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10" fill="#C8E6C9" />
+  <path d="M12 7V17M7 12H17" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+
+
+
+
+// public/images/money-out.svg
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="10" fill="#FFCDD2" />
+  <path d="M7 12H17" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
+
+
+
+
+// public/images/money-plant.svg
+<svg width="60" height="80" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="25" y="60" width="10" height="20" fill="#8D6E63" />
+  <path d="M30 60C30 60 10 45 5 30C0 15 15 10 25 20C25 20 25 5 40 5C55 5 60 25 40 35C40 35 50 40 45 50C40 60 30 60 30 60Z" fill="#4CAF50" stroke="#388E3C" stroke-width="1" />
+  <circle cx="20" cy="25" r="6" fill="#FFD700" stroke="#FFA000" stroke-width="1" />
+  <circle cx="20" cy="25" r="4" fill="#FFECB3" />
+  <text x="20" y="28" font-family="Arial" font-size="6" font-weight="bold" text-anchor="middle" fill="#FFA000">£</text>
+  <circle cx="40" cy="40" r="6" fill="#FFD700" stroke="#FFA000" stroke-width="1" />
+  <circle cx="40" cy="40" r="4" fill="#FFECB3" />
+  <text x="40" y="43" font-family="Arial" font-size="6" font-weight="bold" text-anchor="middle" fill="#FFA000">£</text>
+  <circle cx="30" cy="15" r="6" fill="#FFD700" stroke="#FFA000" stroke-width="1" />
+  <circle cx="30" cy="15" r="4" fill="#FFECB3" />
+  <text x="30" y="18" font-family="Arial" font-size="6" font-weight="bold" text-anchor="middle" fill="#FFA000">£</text>
+</svg>
+
+
+
+
+// public/images/piggy-bank-small.svg
+<svg width="50" height="40" viewBox="0 0 50 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M40 20C40 13.4 34.6 8 28 8H22C15.4 8 10 13.4 10 20V28C10 34.6 15.4 40 22 40H28C34.6 40 40 34.6 40 28V20Z" fill="#FF9FBA" stroke="#FF6F9A" stroke-width="2"/>
+  <ellipse cx="18" cy="18" rx="3" ry="3" fill="#FFD8E1"/>
+  <ellipse cx="32" cy="18" rx="3" ry="3" fill="#FFD8E1"/>
+  <path d="M22 27H28" stroke="#FF6F9A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M43 22H40" stroke="#FF6F9A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M7 22H10" stroke="#FF6F9A" stroke-width="2" stroke-linecap="round"/>
+  <path d="M25 6V2" stroke="#FF6F9A" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="45" cy="10" r="5" fill="#FFD700" opacity="0.8" />
+  <circle cx="46" cy="12" r="2" fill="#FFFFFF" opacity="0.6" />
+</svg>
+
+
+
+
+// public/images/piggy-bank.svg
+
+
+
+
+// public/images/shopping-cart.svg
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 32C10.9 32 9.99 32.9 9.99 34C9.99 35.1 10.9 36 12 36C13.1 36 14 35.1 14 34C14 32.9 13.1 32 12 32ZM4 4V8H8L13.6 19.59L11.25 23.73C10.9 24.25 10.75 24.87 10.75 25.5C10.75 27.71 12.54 29.5 14.75 29.5H30V25.5H15.36C15.11 25.5 14.9 25.3 14.9 25.05L14.95 24.85L16.5 22H25.44C26.25 22 26.96 21.59 27.34 20.95L32.91 11.27C33.05 11.05 33.11 10.8 33.11 10.53C33.11 9.68 32.41 9 31.54 9H10.72L9.11 6H4ZM28 32C26.9 32 25.99 32.9 25.99 34C25.99 35.1 26.9 36 28 36C29.1 36 30 35.1 30 34C30 32.9 29.1 32 28 32Z" fill="#FF5252"/>
+</svg>
+
+
+
+
+// public/images/star.svg
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+
+
+
+
+// public/vite.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
-FILE END
 
-FILE START
-File Location: README.md
+
+
+// README.md
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -286,10 +824,10 @@ export default tseslint.config({
 })
 ```
 
-FILE END
 
-FILE START
-File Location: src/App.css
+
+
+// src/App.css
 :root {
   --primary-color: #4CAF50;
   --primary-dark: #388E3C;
@@ -390,10 +928,10 @@ h1, h2, h3 {
   }
 }
 
-FILE END
 
-FILE START
-File Location: src/App.tsx
+
+
+// src/App.tsx
 import React from 'react';
 import { MoneyProvider } from './context/MoneyContext';
 import HomePage from './pages/HomePage';
@@ -409,17 +947,17 @@ function App() {
 
 export default App;
 
-FILE END
 
-FILE START
-File Location: src/assets/react.svg
+
+
+// src/assets/react.svg
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
-FILE END
 
-FILE START
-File Location: src/components/AddMoney.tsx
+
+
+// src/components/AddMoney.tsx
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/AddMoney.css';
 
 const AddMoney: React.FC = () => {
@@ -505,14 +1043,149 @@ const AddMoney: React.FC = () => {
 };
 
 export default AddMoney;
-FILE END
 
-FILE START
-File Location: src/components/CurrencySelector.tsx
+
+
+// src/components/character/Character.tsx
+import React, { useState } from 'react';
+import '../../styles/Character.css';
+
+interface CharacterProps {
+  type: 'piggy' | 'wizard' | 'robot' | 'unicorn';
+  mood?: 'happy' | 'neutral' | 'excited';
+  message?: string;
+  onClose?: () => void;
+}
+
+const Character: React.FC<CharacterProps> = ({ 
+  type = 'piggy', 
+  mood = 'neutral', 
+  message,
+  onClose 
+}) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  
+  const getCharacterImage = () => {
+    return `/images/characters/${type}-${mood}.svg`;
+  };
+
+  const handleAnimation = () => {
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 1000);
+  };
+
+  return (
+    <div className={`character-container ${isAnimating ? 'bounce' : ''}`}>
+      <div className="character" onClick={handleAnimation}>
+        {/* Fallback if SVG isn't available */}
+        <div className={`character-emoji ${type}`}>
+          {type === 'piggy' && '🐷'}
+          {type === 'wizard' && '🧙'}
+          {type === 'robot' && '🤖'}
+          {type === 'unicorn' && '🦄'}
+        </div>
+        <img 
+          src={getCharacterImage()} 
+          alt={`${type} character`} 
+          className="character-img"
+          onError={(e) => {
+            // If image fails to load, we'll rely on the emoji fallback
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+          }}
+        />
+      </div>
+      
+      {message && (
+        <div className="speech-bubble">
+          <p>{message}</p>
+          {onClose && (
+            <button className="close-bubble" onClick={onClose}>×</button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Character;
+
+
+
+
+// src/components/character/CharacterLoader.tsx
+import React, { useEffect } from 'react';
+
+// This component ensures character images are loaded properly
+const CharacterLoader: React.FC = () => {
+  useEffect(() => {
+    // Preload character images to ensure they're available
+    const characterTypes = ['piggy', 'wizard', 'robot', 'unicorn'];
+    const moods = ['neutral', 'happy', 'excited'];
+    
+    characterTypes.forEach(type => {
+      moods.forEach(mood => {
+        const img = new Image();
+        img.src = `/images/characters/${type}-${mood}.svg`;
+      });
+    });
+  }, []);
+  
+  return null; // This component doesn't render anything
+};
+
+export default CharacterLoader;
+
+
+
+
+// src/components/character/CharacterSelector.tsx
+import React, { useState } from 'react';
+import Character from './Character';
+import '../../styles/CharacterSelector.css';
+
+interface CharacterSelectorProps {
+  onSelect: (type: 'piggy' | 'wizard' | 'robot' | 'unicorn') => void;
+  selectedType: 'piggy' | 'wizard' | 'robot' | 'unicorn';
+}
+
+const CharacterSelector: React.FC<CharacterSelectorProps> = ({ onSelect, selectedType }) => {
+  const characterTypes = ['piggy', 'wizard', 'robot', 'unicorn'] as const;
+  
+  return (
+    <div className="character-selector">
+      <h3>Choose Your Money Buddy</h3>
+      <div className="character-options">
+        {characterTypes.map((type) => (
+          <div 
+            key={type} 
+            className={`character-option ${selectedType === type ? 'selected' : ''}`}
+            onClick={() => onSelect(type)}
+          >
+            <Character type={type} />
+            <p className="character-name">
+              {type === 'piggy' && 'Penny Piggy'}
+              {type === 'wizard' && 'Money Wizard'}
+              {type === 'robot' && 'Savings Bot'}
+              {type === 'unicorn' && 'Cash Unicorn'}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CharacterSelector;
+
+
+
+
+// src/components/CurrencySelector.tsx
 import React from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/CurrencySelector.css';
-import type { CurrencySymbol } from '../context/MoneyContext';
+import type { CurrencySymbol } from '../context/MoneyContextDefinition';
 
 const CurrencySelector: React.FC = () => {
     const { state, setCurrency } = useMoneyContext();
@@ -544,12 +1217,506 @@ const CurrencySelector: React.FC = () => {
 };
 
 export default CurrencySelector;
-FILE END
 
-FILE START
-File Location: src/components/Header.tsx
+
+
+// src/components/CustomSidebar.tsx
 import React from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import '../styles/CustomSidebar.css';
+
+interface CustomSidebarProps {
+  children: React.ReactNode;
+}
+
+const CustomSidebar: React.FC<CustomSidebarProps> = ({ children }) => {
+  return (
+    <aside className="custom-sidebar">
+      <div className="sidebar-logo">
+        <img src="/images/piggy-bank.svg" alt="Piggy Bank" className="sidebar-logo-image" />
+        <h2>Money Buddy</h2>
+      </div>
+      {children}
+    </aside>
+  );
+};
+
+export default CustomSidebar;
+
+
+
+
+// src/components/CustomSidebarContent.tsx
+import React from 'react';
+import '../styles/CustomSidebarContent.css';
+
+interface CustomSidebarContentProps {
+  children: React.ReactNode;
+}
+
+const CustomSidebarContent: React.FC<CustomSidebarContentProps> = ({ children }) => {
+  return (
+    <main className="custom-sidebar-content">
+      <div className="content-wrapper">
+        {children}
+      </div>
+    </main>
+  );
+};
+
+export default CustomSidebarContent;
+
+
+
+
+// src/components/CustomSidebarLayout.tsx
+import React, { useState } from 'react';
+import '../styles/CustomSidebarLayout.css';
+
+interface CustomSidebarLayoutProps {
+  children: React.ReactNode;
+}
+
+const CustomSidebarLayout: React.FC<CustomSidebarLayoutProps> = ({ children }) => {
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
+  return (
+    <div className={`layout-container ${sidebarVisible ? '' : 'sidebar-hidden'}`}>
+      <button 
+        className="toggle-sidebar-btn" 
+        onClick={toggleSidebar}
+        aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+      >
+        {sidebarVisible ? '◀' : '▶'}
+      </button>
+      {children}
+    </div>
+  );
+};
+
+export default CustomSidebarLayout;
+
+
+
+
+// src/components/gamification/Achievements.tsx
+import React from 'react';
+import '../../styles/Achievements.css';
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  progress?: number;
+  maxProgress?: number;
+}
+
+interface AchievementsProps {
+  achievements: Achievement[];
+}
+
+const Achievements: React.FC<AchievementsProps> = ({ achievements }) => {
+  return (
+    <div className="achievements-container">
+      <h3>Your Achievements</h3>
+      <div className="achievements-list">
+        {achievements.map((achievement) => (
+          <div 
+            key={achievement.id} 
+            className={`achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`}
+          >
+            <div className="achievement-icon">
+              {achievement.unlocked ? (
+                <span className="achievement-emoji">{achievement.icon}</span>
+              ) : (
+                <span className="achievement-emoji locked">🔒</span>
+              )}
+            </div>
+            <div className="achievement-info">
+              <h4>{achievement.title}</h4>
+              <p>{achievement.description}</p>
+              {achievement.maxProgress && (
+                <div className="achievement-progress">
+                  <div 
+                    className="progress-bar" 
+                    style={{ width: `${(achievement.progress! / achievement.maxProgress) * 100}%` }}
+                  ></div>
+                  <div className="progress-text">
+                    {achievement.progress} / {achievement.maxProgress}
+                  </div>
+                </div>
+              )}
+            </div>
+            {achievement.unlocked && (
+              <div className="achievement-unlocked-badge">✓</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Achievements;
+
+
+
+
+// src/components/gamification/Celebration.tsx
+import React, { useEffect, useState } from 'react';
+import '../../styles/Celebration.css';
+
+interface CelebrationProps {
+  show: boolean;
+  message: string;
+  onComplete?: () => void;
+  type?: 'confetti' | 'coins' | 'stars';
+  duration?: number;
+}
+
+const Celebration: React.FC<CelebrationProps> = ({
+  show,
+  message,
+  onComplete,
+  type = 'confetti',
+  duration = 4000
+}) => {
+  const [particles, setParticles] = useState<JSX.Element[]>([]);
+
+  useEffect(() => {
+    if (show) {
+      // Create particles
+      const newParticles: JSX.Element[] = [];
+      const particleCount = type === 'confetti' ? 100 : type === 'coins' ? 20 : 30;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const left = Math.random() * 100;
+        const animDuration = 0.5 + Math.random() * 1.5;
+        const size = type === 'coins' ? 30 + Math.random() * 10 : 6 + Math.random() * 8;
+        const delay = Math.random() * 0.4;
+        
+        if (type === 'confetti') {
+          const colors = ['#FF5722', '#FFEB3B', '#4CAF50', '#2196F3', '#9C27B0'];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          const rotation = Math.random() * 360;
+          
+          newParticles.push(
+            <div 
+              key={i}
+              className="celebration-particle confetti"
+              style={{
+                left: `${left}%`,
+                backgroundColor: color,
+                width: `${size}px`,
+                height: `${size / 2}px`,
+                animationDuration: `${animDuration}s`,
+                animationDelay: `${delay}s`,
+                transform: `rotate(${rotation}deg)`
+              }}
+            />
+          );
+        } else if (type === 'coins') {
+          newParticles.push(
+            <div 
+              key={i}
+              className="celebration-particle coin"
+              style={{
+                left: `${left}%`,
+                width: `${size}px`,
+                height: `${size}px`,
+                animationDuration: `${animDuration}s`,
+                animationDelay: `${delay}s`
+              }}
+            >
+              💰
+            </div>
+          );
+        } else if (type === 'stars') {
+          newParticles.push(
+            <div 
+              key={i}
+              className="celebration-particle star"
+              style={{
+                left: `${left}%`,
+                fontSize: `${size * 2}px`,
+                animationDuration: `${animDuration}s`,
+                animationDelay: `${delay}s`
+              }}
+            >
+              ⭐
+            </div>
+          );
+        }
+      }
+      
+      setParticles(newParticles);
+      
+      // Clean up after animation
+      const timer = setTimeout(() => {
+        setParticles([]);
+        if (onComplete) onComplete();
+      }, duration);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [show, type, duration, onComplete]);
+  
+  if (!show) return null;
+  
+  return (
+    <div className="celebration-container">
+      <div className="celebration-particles">
+        {particles}
+      </div>
+      <div className="celebration-message">
+        <h2>{message}</h2>
+      </div>
+    </div>
+  );
+};
+
+export default Celebration;
+
+
+
+
+// src/components/gamification/GamifiedUI.tsx
+import React, { useState, useEffect } from 'react';
+import { useMoneyContext } from '../../context/useMoneyContext';
+import Character from '../character/Character';
+import CharacterSelector from '../character/CharacterSelector';
+import Achievements from './Achievements';
+import LevelSystem from './LevelSystem';
+import Celebration from './Celebration';
+import '../../styles/GamifiedUI.css';
+
+interface GamifiedUIProps {
+  showRewardsOnly?: boolean;
+}
+
+const GamifiedUI: React.FC<GamifiedUIProps> = ({ showRewardsOnly = false }) => {
+  const { state, setCharacter, getLevelInfo } = useMoneyContext();
+  const [showCharacterSelector, setShowCharacterSelector] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    show: boolean;
+    message: string;
+    type: 'confetti' | 'coins' | 'stars';
+  }>({ show: false, message: '', type: 'confetti' });
+  
+  // Monitor for achievement unlocks to trigger celebrations
+  useEffect(() => {
+    const unlockedAchievement = state.achievements.find((a: { id: string, unlocked: boolean }) => a.unlocked && 
+      // Check localStorage to see if we've already celebrated this achievement
+      !localStorage.getItem(`celebrated_${a.id}`));
+    
+    if (unlockedAchievement) {
+      setCelebration({
+        show: true,
+        message: `Achievement Unlocked: ${unlockedAchievement.title}`,
+        type: 'stars'
+      });
+      
+      // Mark this achievement as celebrated
+      localStorage.setItem(`celebrated_${unlockedAchievement.id}`, 'true');
+    }
+  }, [state.achievements]);
+  
+  // Monitor for level ups
+  useEffect(() => {
+    const currentLevelInfo = getLevelInfo();
+    const previousLevel = localStorage.getItem('previous_level');
+    
+    if (previousLevel && parseInt(previousLevel) < currentLevelInfo.level) {
+      setCelebration({
+        show: true,
+        message: `Level Up! You're now a ${currentLevelInfo.name}`,
+        type: 'confetti'
+      });
+    }
+    
+    // Save current level for next comparison
+    localStorage.setItem('previous_level', currentLevelInfo.level.toString());
+  }, [getLevelInfo, state.currentLevel]);
+  
+  const handleCharacterSelect = (type: 'piggy' | 'wizard' | 'robot' | 'unicorn') => {
+    setCharacter(type);
+    setShowCharacterSelector(false);
+  };
+  
+  const handleCelebrationComplete = () => {
+    setCelebration({ show: false, message: '', type: 'confetti' });
+  };
+  
+  const levelInfo = getLevelInfo();
+  
+  return (
+    <div className="gamified-ui">
+      {/* Character section - only shown in dashboard mode */}
+      {!showRewardsOnly && (
+        <div className="character-container">
+          <div onClick={() => setShowCharacterSelector(true)} className="character-wrapper">
+            <Character 
+              type={state.character?.type || 'piggy'}
+              mood={state.character?.mood || 'neutral'}
+              message={getRandomEncouragement(state.balance, state.savingsGoals)}
+            />
+          </div>
+          
+          {showCharacterSelector && (
+            <div className="character-selector-modal">
+              <div className="modal-content">
+                <button 
+                  className="close-modal" 
+                  onClick={() => setShowCharacterSelector(false)}
+                >
+                  ×
+                </button>
+                <CharacterSelector 
+                  selectedType={state.character.type}
+                  onSelect={handleCharacterSelect}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div className="gamification-panel">
+        {/* Show level info only in dashboard mode */}
+        {!showRewardsOnly && (
+          <LevelSystem 
+            currentLevel={levelInfo.level}
+            currentXP={levelInfo.currentXP}
+            xpForNextLevel={levelInfo.xpForNextLevel}
+            levelName={levelInfo.name}
+          />
+        )}
+        
+        {/* In rewards mode, always show achievements */}
+        {showRewardsOnly ? (
+          <div className="rewards-only-view">
+            <h3>Your Achievements</h3>
+            <Achievements achievements={state.achievements} />
+          </div>
+        ) : (
+          <>
+            <button 
+              className="achievements-toggle"
+              onClick={() => setShowAchievements(!showAchievements)}
+            >
+              {showAchievements ? 'Hide Achievements' : 'Show Achievements'}
+            </button>
+            
+            {showAchievements && (
+              <Achievements achievements={state.achievements} />
+            )}
+          </>
+        )}
+      </div>
+      
+      {celebration.show && (
+        <Celebration 
+          show={true}
+          message={celebration.message}
+          type={celebration.type}
+          onComplete={handleCelebrationComplete}
+        />
+      )}
+    </div>
+  );
+};
+
+// Helper function for random encouraging messages
+function getRandomEncouragement(balance: number, savingsGoals: {id: string; name: string; targetAmount: number; currentAmount: number; completed: boolean}[]): string {
+  const messages = [
+    `You have ${balance} saved up! Keep going!`,
+    'Saving money today means more fun tomorrow!',
+    'You\'re doing great with your savings!',
+    'Every coin counts towards your dreams!',
+    'Wow! Look at you saving like a pro!'
+  ];
+  
+  // Check if they have goals and customize message
+  if (savingsGoals.length > 0) {
+    const incompleteGoals = savingsGoals.filter(goal => !goal.completed);
+    if (incompleteGoals.length > 0) {
+      const randomGoal = incompleteGoals[Math.floor(Math.random() * incompleteGoals.length)];
+      messages.push(`Keep saving for your ${randomGoal.name} goal!`);
+    } else if (savingsGoals.some(goal => goal.completed)) {
+      messages.push('Amazing! You\'ve reached your savings goals!');
+    }
+  }
+  
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+export default GamifiedUI;
+
+
+
+
+// src/components/gamification/LevelSystem.tsx
+import React from 'react';
+import '../../styles/LevelSystem.css';
+
+interface LevelSystemProps {
+  currentLevel: number;
+  currentXP: number;
+  xpForNextLevel: number;
+  levelName: string;
+}
+
+const levelEmojis = ['🥚', '🐣', '🐥', '🐔', '🦅', '🦸‍♀️'];
+
+const LevelSystem: React.FC<LevelSystemProps> = ({ 
+  currentLevel,
+  currentXP,
+  xpForNextLevel,
+  levelName
+}) => {
+  const progressPercentage = (currentXP / xpForNextLevel) * 100;
+  
+  return (
+    <div className="level-system">
+      <div className="level-header">
+        <div className="level-badge">
+          <span className="level-emoji">{levelEmojis[Math.min(currentLevel, levelEmojis.length - 1)]}</span>
+          <span className="level-number">{currentLevel}</span>
+        </div>
+        <div className="level-title">
+          <h3>{levelName}</h3>
+          <p className="level-xp">{currentXP} / {xpForNextLevel} XP</p>
+        </div>
+      </div>
+      
+      <div className="level-progress">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
+      </div>
+      
+      <div className="level-info">
+        <p>Keep saving to level up and unlock new rewards!</p>
+      </div>
+    </div>
+  );
+};
+
+export default LevelSystem;
+
+
+
+
+// src/components/Header.tsx
+import React from 'react';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/Header.css';
 
 const Header: React.FC = () => {
@@ -570,10 +1737,10 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-FILE END
 
-FILE START
-File Location: src/components/MoneyChart.tsx
+
+
+// src/components/MoneyChart.tsx
 import React, { useState } from 'react';
 import {
     Chart as ChartJS,
@@ -587,7 +1754,7 @@ import {
     Title
 } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/MoneyChart.css';
 
 // Register ChartJS components
@@ -627,10 +1794,10 @@ const MoneyChart: React.FC = () => {
         // Calculate running balance for each transaction
         let runningBalance = state.balance;
         const balanceHistory = transactions.map(t => {
-            if (t.type === 'remove') {
-                runningBalance += t.amount;
-            } else {
+            if (t.type === 'expense') {
                 runningBalance -= t.amount;
+            } else {
+                runningBalance += t.amount;
             }
             return runningBalance;
         }).reverse();
@@ -765,12 +1932,12 @@ const MoneyChart: React.FC = () => {
 };
 
 export default MoneyChart;
-FILE END
 
-FILE START
-File Location: src/components/RemoveMoney.tsx
+
+
+// src/components/RemoveMoney.tsx
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/RemoveMoney.css';
 
 const RemoveMoney: React.FC = () => {
@@ -873,12 +2040,12 @@ const RemoveMoney: React.FC = () => {
 };
 
 export default RemoveMoney;
-FILE END
 
-FILE START
-File Location: src/components/SavingsGoals.tsx
+
+
+// src/components/SavingsGoals.tsx
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/SavingsGoals.css';
 
 const SavingsGoals: React.FC = () => {
@@ -1064,17 +2231,17 @@ const SavingsGoals: React.FC = () => {
 };
 
 export default SavingsGoals;
-FILE END
 
-FILE START
-File Location: src/components/TransactionHistory.tsx
+
+
+// src/components/TransactionHistory.tsx
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/TransactionHistory.css';
 
 const TransactionHistory: React.FC = () => {
     const { state } = useMoneyContext();
-    const [filter, setFilter] = useState<'all' | 'add' | 'remove'>('all');
+    const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
     const [showCount, setShowCount] = useState<number>(10);
 
     // Format date to be more readable
@@ -1112,14 +2279,14 @@ const TransactionHistory: React.FC = () => {
                             All
                         </button>
                         <button
-                            className={filter === 'add' ? 'active' : ''}
-                            onClick={() => setFilter('add')}
+                            className={filter === 'income' ? 'active' : ''}
+                            onClick={() => setFilter('income')}
                         >
                             Money In
                         </button>
                         <button
-                            className={filter === 'remove' ? 'active' : ''}
-                            onClick={() => setFilter('remove')}
+                            className={filter === 'expense' ? 'active' : ''}
+                            onClick={() => setFilter('expense')}
                         >
                             Money Out
                         </button>
@@ -1129,10 +2296,10 @@ const TransactionHistory: React.FC = () => {
                         {filteredTransactions.map((transaction) => (
                             <div
                                 key={transaction.id}
-                                className={`transaction-item ${transaction.type === 'add' ? 'add' : 'remove'}`}
+                                className={`transaction-item ${transaction.type === 'income' ? 'add' : 'remove'}`}
                             >
                                 <div className="transaction-icon">
-                                    {transaction.type === 'add' ? (
+                                    {transaction.type === 'income' ? (
                                         <img src="/images/money-in.svg" alt="Money In" />
                                     ) : (
                                         <img src="/images/money-out.svg" alt="Money Out" />
@@ -1145,7 +2312,7 @@ const TransactionHistory: React.FC = () => {
                                 </div>
 
                                 <div className="transaction-amount">
-                                    {transaction.type === 'add' ? '+' : '-'}{state.currency}{transaction.amount.toFixed(2)}
+                                    {transaction.type === 'income' ? '+' : '-'}{state.currency}{transaction.amount.toFixed(2)}
                                 </div>
                             </div>
                         ))}
@@ -1181,42 +2348,25 @@ const TransactionHistory: React.FC = () => {
 };
 
 export default TransactionHistory;
-FILE END
 
-FILE START
-File Location: src/context/MoneyContext.tsx
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+
+
+// src/context/MoneyContext.tsx
+import React, { useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-// Define types
-type TransactionType = 'add' | 'remove';
-export type CurrencySymbol = '£' | '$' | '€' | '¥';
-
-interface Transaction {
-    id: string;
-    amount: number;
-    description: string;
-    type: TransactionType;
-    date: string;
-}
-
-interface SavingsGoal {
-    id: string;
-    name: string;
-    targetAmount: number;
-    currentAmount: number;
-    completed: boolean;
-}
-
-interface MoneyState {
-    transactions: Transaction[];
-    balance: number;
-    totalAdded: number;
-    totalSpent: number;
-    currency: CurrencySymbol;
-    savingsGoals: SavingsGoal[];
-}
+import { 
+    MoneyContext, 
+    levels, 
+    initialState 
+} from './MoneyContextDefinition';
+import type { 
+    MoneyState, 
+    CurrencySymbol, 
+    CharacterType, 
+    MoodType, 
+    TransactionType 
+} from './MoneyContextDefinition';
 
 type MoneyAction =
     | { type: 'ADD_MONEY'; payload: { amount: number; description: string } }
@@ -1225,9 +2375,14 @@ type MoneyAction =
     | { type: 'ADD_SAVINGS_GOAL'; payload: { name: string; targetAmount: number } }
     | { type: 'CONTRIBUTE_TO_GOAL'; payload: { goalId: string; amount: number } }
     | { type: 'REMOVE_SAVINGS_GOAL'; payload: { goalId: string } }
+    | { type: 'SET_CHARACTER'; payload: { type: CharacterType } }
+    | { type: 'SET_MOOD'; payload: { mood: MoodType } }
+    | { type: 'ADD_XP'; payload: { amount: number } }
+    | { type: 'UNLOCK_ACHIEVEMENT'; payload: { achievementId: string } }
+    | { type: 'UPDATE_ACHIEVEMENT_PROGRESS'; payload: { achievementId: string; progress: number } }
     | { type: 'RESET' };
 
-interface MoneyContextType {
+export interface MoneyContextType {
     state: MoneyState;
     addMoney: (amount: number, description: string) => void;
     removeMoney: (amount: number, description: string) => void;
@@ -1236,20 +2391,14 @@ interface MoneyContextType {
     contributeToGoal: (goalId: string, amount: number) => void;
     removeSavingsGoal: (goalId: string) => void;
     resetData: () => void;
+    // Gamification methods
+    setCharacter: (type: CharacterType) => void;
+    setMood: (mood: MoodType) => void;
+    addXP: (amount: number) => void;
+    unlockAchievement: (achievementId: string) => void;
+    updateAchievementProgress: (achievementId: string, progress: number) => void;
+    getLevelInfo: () => { name: string; level: number; currentXP: number; xpForNextLevel: number };
 }
-
-// Create context
-const MoneyContext = createContext<MoneyContextType | undefined>(undefined);
-
-// Initial state
-const initialState: MoneyState = {
-    transactions: [],
-    balance: 0,
-    totalAdded: 0,
-    totalSpent: 0,
-    currency: '£',
-    savingsGoals: [],
-};
 
 // Load state from localStorage
 const loadState = (): MoneyState => {
@@ -1270,12 +2419,102 @@ const loadState = (): MoneyState => {
     }
 };
 
+// Helper function to check and update achievements
+const checkAchievements = (state: MoneyState): MoneyState => {
+    const updatedAchievements = [...state.achievements];
+    let xpGained = 0;
+    let shouldUpdateMood = false;
+    
+    // Check first deposit achievement
+    const firstDepositAchievement = updatedAchievements.find(a => a.id === 'first-deposit');
+    if (firstDepositAchievement && !firstDepositAchievement.unlocked && state.totalAdded > 0) {
+        firstDepositAchievement.unlocked = true;
+        xpGained += 50;
+        shouldUpdateMood = true;
+    }
+    
+    // Check big saver achievement
+    const bigSaverAchievement = updatedAchievements.find(a => a.id === 'big-saver');
+    if (bigSaverAchievement) {
+        const progress = Math.min(state.totalAdded, bigSaverAchievement.maxProgress!);
+        if (progress !== bigSaverAchievement.progress) {
+            bigSaverAchievement.progress = progress;
+            if (progress >= bigSaverAchievement.maxProgress! && !bigSaverAchievement.unlocked) {
+                bigSaverAchievement.unlocked = true;
+                xpGained += 100;
+                shouldUpdateMood = true;
+            }
+        }
+    }
+    
+    // Check goal achiever
+    const goalAchieverAchievement = updatedAchievements.find(a => a.id === 'goal-achiever');
+    if (goalAchieverAchievement && !goalAchieverAchievement.unlocked && 
+        state.savingsGoals.some(goal => goal.completed)) {
+        goalAchieverAchievement.unlocked = true;
+        xpGained += 75;
+        shouldUpdateMood = true;
+    }
+    
+    // Calculate new level based on XP
+    const totalXP = state.xp + xpGained;
+    let newLevel = state.currentLevel;
+    for (let i = levels.length - 1; i >= 0; i--) {
+        if (totalXP >= levels[i].xpRequired) {
+            newLevel = levels[i].level;
+            break;
+        }
+    }
+    
+    // Update mood if achievements were unlocked
+    const mood = shouldUpdateMood ? 'excited' : state.character.mood;
+    
+    return {
+        ...state,
+        achievements: updatedAchievements,
+        xp: totalXP,
+        currentLevel: newLevel,
+        character: {
+            ...state.character,
+            mood
+        }
+    };
+};
+
 // Reducer function
 const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
     let newState: MoneyState;
 
     switch (action.type) {
-        case 'ADD_MONEY':
+        case 'ADD_MONEY': {
+            // Check for consecutive savings streak
+            const today = new Date().toISOString().split('T')[0];
+            const isConsecutive = state.lastSavingDate ? 
+                new Date(state.lastSavingDate).getTime() + (24 * 60 * 60 * 1000) >= new Date(today).getTime() : 
+                false;
+            
+            const newConsecutiveSavings = isConsecutive ? state.consecutiveSavings + 1 : 1;
+            
+            // Update savings streak achievement if needed
+            const savingsStreakAchievement = state.achievements.find(a => a.id === 'savings-streak');
+            let streakUpdatedAchievements = [...state.achievements];
+            let streakXP = 0;
+            
+            if (savingsStreakAchievement && !savingsStreakAchievement.unlocked) {
+                const newProgress = Math.min(newConsecutiveSavings, savingsStreakAchievement.maxProgress!);
+                if (newProgress !== savingsStreakAchievement.progress) {
+                    streakUpdatedAchievements = streakUpdatedAchievements.map(a => 
+                        a.id === 'savings-streak' ? 
+                            { ...a, progress: newProgress, unlocked: newProgress >= a.maxProgress! } : 
+                            a
+                    );
+                    
+                    if (newProgress >= savingsStreakAchievement.maxProgress!) {
+                        streakXP = 75;
+                    }
+                }
+            }
+            
             newState = {
                 ...state,
                 transactions: [
@@ -1283,15 +2522,27 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: action.payload.amount,
                         description: action.payload.description,
-                        type: 'add',
+                        type: 'income',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
                 ],
                 balance: state.balance + action.payload.amount,
                 totalAdded: state.totalAdded + action.payload.amount,
+                xp: state.xp + 10 + streakXP, // Award XP for saving
+                consecutiveSavings: newConsecutiveSavings,
+                lastSavingDate: today,
+                achievements: streakUpdatedAchievements,
+                character: {
+                    ...state.character,
+                    mood: 'happy'
+                }
             };
+            
+            // Check and update achievements
+            newState = checkAchievements(newState);
             break;
+        }
 
         case 'REMOVE_MONEY':
             newState = {
@@ -1301,7 +2552,7 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: action.payload.amount,
                         description: action.payload.description,
-                        type: 'remove',
+                        type: 'expense',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
@@ -1357,7 +2608,7 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: amount,
                         description: `Contribution to goal: ${state.savingsGoals.find(g => g.id === goalId)?.name}`,
-                        type: 'remove',
+                        type: 'expense',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
@@ -1374,6 +2625,83 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
             };
             break;
 
+        case 'SET_CHARACTER':
+            newState = {
+                ...state,
+                character: {
+                    ...state.character,
+                    type: action.payload.type
+                }
+            };
+            break;
+            
+        case 'SET_MOOD':
+            newState = {
+                ...state,
+                character: {
+                    ...state.character,
+                    mood: action.payload.mood
+                }
+            };
+            break;
+            
+        case 'ADD_XP': {
+            const totalXP = state.xp + action.payload.amount;
+            let newLevel = state.currentLevel;
+            
+            // Calculate new level based on XP
+            for (let i = levels.length - 1; i >= 0; i--) {
+                if (totalXP >= levels[i].xpRequired) {
+                    newLevel = levels[i].level;
+                    break;
+                }
+            }
+            
+            newState = {
+                ...state,
+                xp: totalXP,
+                currentLevel: newLevel
+            };
+            break;
+        }
+            
+        case 'UNLOCK_ACHIEVEMENT':
+            newState = {
+                ...state,
+                achievements: state.achievements.map(achievement => 
+                    achievement.id === action.payload.achievementId ? 
+                        { ...achievement, unlocked: true } : 
+                        achievement
+                )
+            };
+            break;
+            
+        case 'UPDATE_ACHIEVEMENT_PROGRESS': {
+            const achievement = state.achievements.find(a => a.id === action.payload.achievementId);
+            
+            if (achievement && achievement.maxProgress) {
+                const isUnlocked = action.payload.progress >= achievement.maxProgress;
+                
+                newState = {
+                    ...state,
+                    achievements: state.achievements.map(a => 
+                        a.id === action.payload.achievementId ? 
+                            { 
+                                ...a, 
+                                progress: Math.min(action.payload.progress, a.maxProgress!),
+                                unlocked: isUnlocked || a.unlocked
+                            } : 
+                            a
+                    ),
+                    // Add XP if achievement was just unlocked
+                    xp: isUnlocked && !achievement.unlocked ? state.xp + 50 : state.xp
+                };
+            } else {
+                newState = state;
+            }
+            break;
+        }
+            
         case 'RESET':
             newState = initialState;
             break;
@@ -1397,15 +2725,13 @@ interface MoneyProviderProps {
     children: ReactNode;
 }
 
-export const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
-    const [state, dispatch] = useReducer(moneyReducer, loadState());
+const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
+    const [state, dispatch] = useReducer(moneyReducer, initialState, loadState);
 
-    // Save state to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem('pocketMoneyState', JSON.stringify(state));
     }, [state]);
 
-    // Action creators
     const addMoney = (amount: number, description: string) => {
         dispatch({ type: 'ADD_MONEY', payload: { amount, description } });
     };
@@ -1433,43 +2759,279 @@ export const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
     const resetData = () => {
         dispatch({ type: 'RESET' });
     };
+    
+    // Gamification methods
+    const setCharacter = (type: CharacterType) => {
+        dispatch({ type: 'SET_CHARACTER', payload: { type } });
+    };
+    
+    const setMood = (mood: MoodType) => {
+        dispatch({ type: 'SET_MOOD', payload: { mood } });
+    };
+    
+    const addXP = (amount: number) => {
+        dispatch({ type: 'ADD_XP', payload: { amount } });
+    };
+    
+    const unlockAchievement = (achievementId: string) => {
+        dispatch({ type: 'UNLOCK_ACHIEVEMENT', payload: { achievementId } });
+    };
+    
+    const updateAchievementProgress = (achievementId: string, progress: number) => {
+        dispatch({ type: 'UPDATE_ACHIEVEMENT_PROGRESS', payload: { achievementId, progress } });
+    };
+    
+    const getLevelInfo = () => {
+        // Safely find the current level with a fallback to the first level
+        const currentLevel = levels.find(l => l.level === state.currentLevel) || levels[0];
+        const nextLevelIndex = levels.findIndex(l => l.level === currentLevel.level) + 1;
+        const nextLevel = nextLevelIndex < levels.length ? levels[nextLevelIndex] : null;
+        
+        return {
+            name: currentLevel.name,
+            level: currentLevel.level,
+            currentXP: state.xp,
+            xpForNextLevel: nextLevel ? nextLevel.xpRequired : currentLevel.xpRequired + 1000
+        };
+    };
 
     return (
-        <MoneyContext.Provider value={{
-            state,
-            addMoney,
-            removeMoney,
-            setCurrency,
-            addSavingsGoal,
-            contributeToGoal,
-            removeSavingsGoal,
-            resetData
-        }}>
+        <MoneyContext.Provider
+            value={{
+                state,
+                addMoney,
+                removeMoney,
+                setCurrency,
+                addSavingsGoal,
+                contributeToGoal,
+                removeSavingsGoal,
+                resetData,
+                // Gamification methods
+                setCharacter,
+                setMood,
+                addXP,
+                unlockAchievement,
+                updateAchievementProgress,
+                getLevelInfo
+            }}
+        >
             {children}
         </MoneyContext.Provider>
     );
 };
 
+export { MoneyProvider };
+
+
+
+// src/context/MoneyContextDefinition.tsx
+import { createContext } from 'react';
+import type { Achievement } from '../components/gamification/Achievements';
+
+// Define types
+export type TransactionType = 'income' | 'expense';
+export type CurrencySymbol = '£' | '$' | '€' | '¥';
+export type CharacterType = 'piggy' | 'wizard' | 'robot' | 'unicorn';
+export type MoodType = 'happy' | 'neutral' | 'excited';
+
+export interface Transaction {
+    id: string;
+    amount: number;
+    description: string;
+    type: TransactionType;
+    date: string;
+}
+
+export interface SavingsGoal {
+    id: string;
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    completed: boolean;
+}
+
+export interface Level {
+    level: number;
+    name: string;
+    xpRequired: number;
+}
+
+export interface MoneyState {
+    transactions: Transaction[];
+    balance: number;
+    totalAdded: number;
+    totalSpent: number;
+    currency: CurrencySymbol;
+    savingsGoals: SavingsGoal[];
+    character: {
+        type: CharacterType;
+        mood: MoodType;
+    };
+    xp: number;
+    currentLevel: number;
+    achievements: Achievement[];
+    consecutiveSavings: number;
+    lastSavingDate: string | null;
+}
+
+export interface MoneyContextType {
+    state: MoneyState;
+    addMoney: (amount: number, description: string) => void;
+    removeMoney: (amount: number, description: string) => void;
+    setCurrency: (currency: CurrencySymbol) => void;
+    addSavingsGoal: (name: string, targetAmount: number) => void;
+    contributeToGoal: (goalId: string, amount: number) => void;
+    removeSavingsGoal: (goalId: string) => void;
+    resetData: () => void;
+    setCharacter: (type: CharacterType) => void;
+    setMood: (mood: MoodType) => void;
+    addXP: (amount: number) => void;
+    unlockAchievement: (achievementId: string) => void;
+    updateAchievementProgress: (achievementId: string, progress: number) => void;
+    getLevelInfo: () => { name: string; level: number; currentXP: number; xpForNextLevel: number };
+}
+
+// Create context
+export const MoneyContext = createContext<MoneyContextType | undefined>(undefined);
+
+// Define levels for the game
+export const levels: Level[] = [
+    {
+        level: 1,
+        name: 'Money Beginner',
+        xpRequired: 0
+    },
+    {
+        level: 2,
+        name: 'Money Explorer',
+        xpRequired: 100
+    },
+    {
+        level: 3,
+        name: 'Money Adventurer',
+        xpRequired: 250
+    },
+    {
+        level: 4,
+        name: 'Money Captain',
+        xpRequired: 500
+    },
+    {
+        level: 5,
+        name: 'Money Master',
+        xpRequired: 1000
+    }
+];
+
+// Default achievements
+export const defaultAchievements: Achievement[] = [
+    {
+        id: 'first-pound',
+        title: 'First Pound',
+        description: 'Add your first pound',
+        icon: '💰',
+        unlocked: false
+    },
+    {
+        id: 'saving-streak',
+        title: 'Saving Streak',
+        description: 'Add money 3 days in a row',
+        icon: '🔥',
+        unlocked: false,
+        progress: 0,
+        maxProgress: 3
+    },
+    {
+        id: 'big-saver',
+        title: 'Big Saver',
+        description: 'Save up £50 in total',
+        icon: '🏦',
+        unlocked: false,
+        progress: 0,
+        maxProgress: 50
+    },
+    {
+        id: 'goal-achiever',
+        title: 'Goal Achiever',
+        description: 'Complete your first savings goal',
+        icon: '🏆',
+        unlocked: false
+    },
+    {
+        id: 'budget-master',
+        title: 'Budget Master',
+        description: 'Have 5 or more transactions without going below 0',
+        icon: '📊',
+        unlocked: false,
+        progress: 0,
+        maxProgress: 5
+    }
+];
+
+// Initial state
+export const initialState: MoneyState = {
+    transactions: [],
+    balance: 0,
+    totalAdded: 0,
+    totalSpent: 0,
+    currency: '£',
+    savingsGoals: [],
+    // Gamification initial state
+    character: {
+        type: 'piggy',
+        mood: 'neutral'
+    },
+    xp: 0,
+    currentLevel: 1,
+    achievements: defaultAchievements,
+    consecutiveSavings: 0,
+    lastSavingDate: null
+};
+
+
+
+
+// src/context/useMoneyContext.tsx
+import { useContext } from 'react';
+import { MoneyContext } from './MoneyContextDefinition';
+import type { MoneyContextType } from './MoneyContextDefinition';
+
 // Custom hook to use the money context
 export const useMoneyContext = (): MoneyContextType => {
-    const context = useContext(MoneyContext);
-    if (context === undefined) {
-        throw new Error('useMoneyContext must be used within a MoneyProvider');
-    }
-    return context;
+  const context = useContext(MoneyContext);
+  if (context === undefined) {
+    throw new Error('useMoneyContext must be used within a MoneyProvider');
+  }
+  return context;
 };
-FILE END
 
-FILE START
-File Location: src/index.css
+
+
+
+// src/index.css
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #333333;
+  background-color: #ffffff;
+  
+  /* Color system */
+  --primary: #1a73e8;
+  --primary-light: #e8f0fe;
+  --secondary: #5f6368;
+  --success: #34a853;
+  --danger: #ea4335;
+  --warning: #fbbc05;
+  --info: #4285f4;
+  --light: #f8f9fa;
+  --dark: #202124;
+  --border: #e0e0e0;
+  --shadow: rgba(0, 0, 0, 0.05);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -1479,11 +3041,12 @@ File Location: src/index.css
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--primary);
   text-decoration: inherit;
+  transition: color 0.2s ease;
 }
 a:hover {
-  color: #535bf2;
+  color: #0d5bcd;
 }
 
 body {
@@ -1500,41 +3063,72 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  padding: 0.5em 1em;
+  font-size: 0.95em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: white;
+  color: var(--secondary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s ease;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: var(--light);
+  border-color: #d0d0d0;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--primary-light);
+  outline-offset: 1px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Primary button */
+button.primary {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+button.primary:hover {
+  background-color: #0d5bcd;
+  border-color: #0d5bcd;
 }
 
-FILE END
+/* Card styling */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px var(--shadow);
+  padding: 1.25rem;
+  transition: box-shadow 0.2s ease;
+}
 
-FILE START
-File Location: src/main.tsx
+.card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+/* Text utilities */
+.text-muted {
+  color: var(--secondary);
+}
+
+.text-small {
+  font-size: 0.875rem;
+}
+
+.font-weight-medium {
+  font-weight: 500;
+}
+
+.font-weight-bold {
+  font-weight: 600;
+}
+
+
+
+
+// src/main.tsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -1546,11 +3140,11 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-FILE END
 
-FILE START
-File Location: src/pages/HomePage.tsx
-import React from 'react';
+
+
+// src/pages/HomePage.tsx
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import AddMoney from '../components/AddMoney';
 import RemoveMoney from '../components/RemoveMoney';
@@ -1558,55 +3152,340 @@ import TransactionHistory from '../components/TransactionHistory';
 import MoneyChart from '../components/MoneyChart';
 import CurrencySelector from '../components/CurrencySelector';
 import SavingsGoals from '../components/SavingsGoals';
+import GamifiedUI from '../components/gamification/GamifiedUI';
+import Celebration from '../components/gamification/Celebration';
+import { useMoneyContext } from '../context/useMoneyContext';
+import CustomSidebarLayout from '../components/CustomSidebarLayout';
+import CustomSidebar from '../components/CustomSidebar';
+import CustomSidebarContent from '../components/CustomSidebarContent';
 import '../styles/HomePage.css';
+import '../styles/animations.css';
 
 const HomePage: React.FC = () => {
+    const { state } = useMoneyContext();
+    const [showCoinAnimation, setShowCoinAnimation] = useState(false);
+    const [activeSection, setActiveSection] = useState('dashboard');
+    
+    // Track when money is added for coin animation
+    useEffect(() => {
+        const handleTransactionAdded = () => {
+            // Check if the latest transaction is an 'income' type
+            if (state.transactions.length > 0 && state.transactions[0].type === 'income') {
+                setShowCoinAnimation(true);
+                
+                // Hide animation after it plays
+                setTimeout(() => {
+                    setShowCoinAnimation(false);
+                }, 3000);
+            }
+        };
+        
+        handleTransactionAdded();
+        // Using both transactions array and length as dependencies
+    }, [state.transactions, state.transactions.length]);
+    
+    const handleNavClick = (section: string) => {
+        setActiveSection(section);
+    };
+    
     return (
-        <div className="home-page">
-            <Header />
-
-            <main className="main-content">
-                <div className="settings-panel">
+        <CustomSidebarLayout>
+            <CustomSidebar>
+                <nav className="sidebar-nav">
+                    <a 
+                        href="#" 
+                        className={`nav-item ${activeSection === 'dashboard' ? 'active' : ''}`}
+                        onClick={() => handleNavClick('dashboard')}
+                    >
+                        <img src="/images/home.svg" alt="Dashboard" className="nav-icon" />
+                        My Dashboard
+                    </a>
+                    <a 
+                        href="#" 
+                        className={`nav-item ${activeSection === 'money' ? 'active' : ''}`}
+                        onClick={() => handleNavClick('money')}
+                    >
+                        <img src="/images/coins.svg" alt="Money" className="nav-icon" />
+                        Add/Spend Money
+                    </a>
+                    <a 
+                        href="#" 
+                        className={`nav-item ${activeSection === 'savings' ? 'active' : ''}`}
+                        onClick={() => handleNavClick('savings')}
+                    >
+                        <img src="/images/piggy-bank-small.svg" alt="Savings" className="nav-icon" />
+                        My Savings Goals
+                    </a>
+                    <a 
+                        href="#" 
+                        className={`nav-item ${activeSection === 'history' ? 'active' : ''}`}
+                        onClick={() => handleNavClick('history')}
+                    >
+                        <img src="/images/history.svg" alt="History" className="nav-icon" />
+                        Money History
+                    </a>
+                    <a 
+                        href="#" 
+                        className={`nav-item ${activeSection === 'rewards' ? 'active' : ''}`}
+                        onClick={() => handleNavClick('rewards')}
+                    >
+                        <img src="/images/star.svg" alt="Rewards" className="nav-icon" />
+                        My Rewards
+                    </a>
+                </nav>
+                
+                <div className="sidebar-footer">
                     <CurrencySelector />
                 </div>
+            </CustomSidebar>
+            
+            <CustomSidebarContent>
+                <div className="home-page">
+                    <Header />
 
-                <div className="content-grid">
-                    <div className="money-actions">
-                        <AddMoney />
-                        <RemoveMoney />
-                    </div>
+                    <main className="main-content">
+                        {activeSection === 'dashboard' && (
+                            <div className="dashboard-section">
+                                <h2 className="section-title">My Money Dashboard</h2>
+                                <div className="dashboard-grid">
+                                    <div className="money-visuals">
+                                        <MoneyChart />
+                                    </div>
+                                    <div className="gamify-container">
+                                        <GamifiedUI />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeSection === 'money' && (
+                            <div className="money-section">
+                                <h2 className="section-title">Add or Spend Money</h2>
+                                <div className="money-actions-container">
+                                    <div className="money-action-card">
+                                        <h3>Add Money</h3>
+                                        <AddMoney />
+                                    </div>
+                                    <div className="money-action-card">
+                                        <h3>Spend Money</h3>
+                                        <RemoveMoney />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeSection === 'savings' && (
+                            <div className="savings-container">
+                                <h2 className="section-title">My Savings Goals</h2>
+                                <div className="savings-content">
+                                    <SavingsGoals />
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeSection === 'history' && (
+                            <div className="history-container">
+                                <h2 className="section-title">My Money History</h2>
+                                <div className="history-content">
+                                    <TransactionHistory />
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeSection === 'rewards' && (
+                            <div className="rewards-container">
+                                <h2 className="section-title">My Rewards</h2>
+                                <div className="rewards-content">
+                                    <GamifiedUI showRewardsOnly={true} />
+                                </div>
+                            </div>
+                        )}
+                    </main>
 
-                    <div className="money-visuals">
-                        <MoneyChart />
-                    </div>
-
-                    <div className="savings-section">
-                        <SavingsGoals />
-                    </div>
-
-                    <div className="history-section">
-                        <TransactionHistory />
-                    </div>
+                    <footer className="footer">
+                        <p>Pocket Money Tracker - Making saving fun for kids!</p>
+                        <div className="footer-images">
+                            <img src="/images/coins.svg" alt="Coins" />
+                            <img src="/images/piggy-bank-small.svg" alt="Piggy Bank" />
+                            <img src="/images/money-plant.svg" alt="Money Plant" />
+                        </div>
+                    </footer>
+                    
+                    {/* Coin animation when money is added */}
+                    {showCoinAnimation && (
+                        <Celebration 
+                            show={true}
+                            message="Money Added!"
+                            type="coins"
+                            onComplete={() => setShowCoinAnimation(false)}
+                            duration={3000}
+                        />
+                    )}
                 </div>
-            </main>
-
-            <footer className="footer">
-                <p>Pocket Money Tracker - Making saving fun for kids!</p>
-                <div className="footer-images">
-                    <img src="/images/coins.svg" alt="Coins" />
-                    <img src="/images/piggy-bank-small.svg" alt="Piggy Bank" />
-                    <img src="/images/money-plant.svg" alt="Money Plant" />
-                </div>
-            </footer>
-        </div>
+            </CustomSidebarContent>
+        </CustomSidebarLayout>
     );
 };
 
 export default HomePage;
-FILE END
 
-FILE START
-File Location: src/styles/AddMoney.css
+
+
+// src/styles/Achievements.css
+/* Achievements component styling */
+.achievements-container {
+  background-color: #f2f7ff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+  margin-bottom: 20px;
+}
+
+.achievements-container h3 {
+  color: #1565C0;
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid #E3F2FD;
+}
+
+.achievement-card.unlocked {
+  border-color: #2196F3;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.achievement-card.locked {
+  opacity: 0.7;
+}
+
+.achievement-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #E3F2FD;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.achievement-card.unlocked .achievement-icon {
+  background-color: #BBDEFB;
+}
+
+.achievement-emoji {
+  font-size: 24px;
+}
+
+.achievement-emoji.locked {
+  opacity: 0.5;
+}
+
+.achievement-info {
+  flex-grow: 1;
+}
+
+.achievement-info h4 {
+  margin: 0 0 5px 0;
+  color: #1976D2;
+  font-size: 1rem;
+}
+
+.achievement-info p {
+  margin: 0 0 8px 0;
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+.achievement-progress {
+  height: 10px;
+  background-color: #E0E0E0;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #2196F3;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.7rem;
+  color: #424242;
+  text-shadow: 0 0 2px white;
+}
+
+.achievement-unlocked-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 2px solid white;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .achievements-list {
+    gap: 10px;
+  }
+  
+  .achievement-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+  
+  .achievement-emoji {
+    font-size: 20px;
+  }
+  
+  .achievement-info h4 {
+    font-size: 0.9rem;
+  }
+  
+  .achievement-info p {
+    font-size: 0.8rem;
+  }
+}
+
+
+
+
+// src/styles/AddMoney.css
 .add-money-container {
   background-color: var(--background-white);
   border-radius: 16px;
@@ -1721,10 +3600,481 @@ File Location: src/styles/AddMoney.css
 .add-button:active {
   animation: bounce 0.5s ease;
 }
-FILE END
 
-FILE START
-File Location: src/styles/CurrencySelector.css
+
+
+// src/styles/animations.css
+/* Animation keyframes and utility classes */
+
+/* Floating animation for characters */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse animation for buttons and interactive elements */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Shake animation for alerts */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 2s linear infinite;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-20px); }
+  60% { transform: translateY(-10px); }
+}
+
+.bounce {
+  animation: bounce 1s ease;
+}
+
+/* Pop animation for achievements */
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pop {
+  animation: pop 0.5s ease-out;
+}
+
+/* Rainbow text effect for celebrations */
+@keyframes rainbow {
+  0% { color: #ff0000; }
+  15% { color: #ff8000; }
+  30% { color: #ffff00; }
+  45% { color: #00ff00; }
+  60% { color: #00ffff; }
+  75% { color: #0000ff; }
+  90% { color: #8000ff; }
+  100% { color: #ff0000; }
+}
+
+.rainbow-text {
+  animation: rainbow 5s linear infinite;
+}
+
+/* Coin flip animation */
+@keyframes coinFlip {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.coin-flip {
+  animation: coinFlip 1s linear;
+}
+
+/* Glow effect for important elements */
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(156, 39, 176, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(156, 39, 176, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(156, 39, 176, 0.5); }
+}
+
+.glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Typing animation for character speech bubbles */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.typing-text {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #9C27B0;
+  animation: 
+    typing 2s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #9C27B0 }
+}
+
+
+
+
+// src/styles/Celebration.css
+/* Celebration component styling */
+.celebration-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.celebration-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.celebration-particle {
+  position: absolute;
+  top: -20px;
+  animation-name: fall;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+
+.celebration-particle.confetti {
+  transform-origin: center;
+  animation-name: confettiFall;
+}
+
+.celebration-particle.coin {
+  font-size: 25px;
+  animation-name: coinFall;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.celebration-particle.star {
+  animation-name: starFall;
+}
+
+.celebration-message {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 20px 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  animation: messagePopIn 0.5s ease-out forwards;
+  z-index: 1;
+  border: 3px solid #9C27B0;
+}
+
+.celebration-message h2 {
+  color: #9C27B0;
+  margin: 0;
+  font-size: 2rem;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-20px);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes coinFall {
+  0% {
+    transform: translateY(-20px) rotateY(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(25vh) rotateY(180deg);
+  }
+  50% {
+    transform: translateY(50vh) rotateY(360deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateY(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes starFall {
+  0% {
+    transform: translateY(-20px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(50vh) scale(0.5) rotate(180deg);
+  }
+  100% {
+    transform: translateY(100vh) scale(0.25) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes messagePopIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+
+
+// src/styles/Character.css
+/* Character styling */
+.character-container {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+.character {
+  cursor: pointer;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.character:hover {
+  transform: scale(1.1);
+}
+
+.character-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.character-emoji {
+  position: absolute;
+  font-size: 40px;
+  z-index: 1;
+}
+
+/* Speech bubble styling */
+.speech-bubble {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 15px;
+  border: 2px solid #9C27B0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 200px;
+  z-index: 10;
+}
+
+.speech-bubble:after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 10px 10px 10px;
+  border-style: solid;
+  border-color: transparent transparent #ffffff transparent;
+}
+
+.speech-bubble:before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 12px 12px 12px;
+  border-style: solid;
+  border-color: transparent transparent #9C27B0 transparent;
+}
+
+.close-bubble {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #9C27B0;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-bubble:hover {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+
+/* Animation classes */
+.bounce {
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Character types styling */
+.piggy {
+  color: #FF6D9F;
+}
+
+.wizard {
+  color: #673AB7;
+}
+
+.robot {
+  color: #2196F3;
+}
+
+.unicorn {
+  color: #FF9800;
+}
+
+
+
+
+// src/styles/CharacterSelector.css
+/* Character Selector styling */
+.character-selector {
+  background-color: #f9f4ff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.character-selector h3 {
+  color: #6200EA;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.character-options {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.character-option {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.character-option:hover {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+
+.character-option.selected {
+  background-color: rgba(156, 39, 176, 0.15);
+  border-color: #9C27B0;
+  transform: scale(1.05);
+}
+
+.character-name {
+  margin: 8px 0 0;
+  font-weight: bold;
+  color: #673AB7;
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .character-options {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .character-option {
+    width: 45%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .character-option {
+    width: 80%;
+  }
+}
+
+
+
+
+// src/styles/CurrencySelector.css
 .currency-selector {
     background-color: white;
     border-radius: 12px;
@@ -1770,19 +4120,329 @@ File Location: src/styles/CurrencySelector.css
     color: white;
     border-color: var(--primary);
 }
-FILE END
 
-FILE START
-File Location: src/styles/Header.css
-.header {
-  background-color: var(--primary-color);
+
+
+// src/styles/CustomSidebar.css
+.custom-sidebar {
+  width: 250px;
+  background-color: #f8f9fa; /* Light gray background */
+  padding: 20px;
+  border-right: 1px solid #e0e0e0; /* Subtle border */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.sidebar-logo-image {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.sidebar-logo h2 {
+  font-size: 1.2rem;
+  color: #444;
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.nav-item.active {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-icon {
+  margin-right: 12px;
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 0.75rem;
+  color: #888;
+  text-align: center;
+  padding-top: 20px;
+}
+
+
+
+
+// src/styles/CustomSidebarContent.css
+.custom-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease;
+  margin-left: 250px; /* Matches sidebar width */
+}
+
+.content-wrapper {
+  padding: 24px 32px;
+  padding-top: 40px; /* Extra padding to account for toggle button */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Subtle animation for content */
+.custom-sidebar-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.95; }
+  to { opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-sidebar-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .content-wrapper {
+    padding: 15px;
+    padding-top: 35px;
+  }
+}
+
+
+
+
+// src/styles/CustomSidebarLayout.css
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-color: #f8f9fa;
+}
+
+.toggle-sidebar-btn {
+  position: absolute;
+  left: 250px; /* Matches sidebar width */
+  top: 20px;
+  z-index: 100;
+  background-color: #f2f2f2;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+  font-size: 10px;
+}
+
+.toggle-sidebar-btn:hover {
+  background-color: #efefef;
+  color: #333;
+  transform: none;
+}
+
+.sidebar-hidden .toggle-sidebar-btn {
+  left: 10px;
+}
+
+.sidebar-hidden .custom-sidebar {
+  transform: translateX(-100%);
+}
+
+.sidebar-hidden .custom-sidebar-content {
+  margin-left: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 10;
+  }
+  
+  .toggle-sidebar-btn {
+    left: 250px;
+  }
+  
+  .sidebar-hidden .toggle-sidebar-btn {
+    left: 10px;
+  }
+}
+
+
+
+
+// src/styles/GamifiedUI.css
+/* GamifiedUI Component Styling */
+.gamified-ui {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.character-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.character-wrapper {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.character-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.character-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 3px solid #9C27B0;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #9C27B0;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-modal:hover {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+
+.gamification-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.achievements-toggle {
+  background-color: #9C27B0;
   color: white;
-  padding: 1rem 2rem;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(156, 39, 176, 0.3);
+}
+
+.achievements-toggle:hover {
+  background-color: #7B1FA2;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(156, 39, 176, 0.4);
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+  .gamified-ui {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .character-container {
+    width: 30%;
+    margin-bottom: 0;
+  }
+  
+  .gamification-panel {
+    width: 65%;
+  }
+}
+
+
+
+
+// src/styles/Header.css
+.header {
+  background-color: white;
+  color: #333;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px var(--shadow-color);
-  border-radius: 0 0 16px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
 }
 
 .logo {
@@ -1792,38 +4452,41 @@ File Location: src/styles/Header.css
 }
 
 .logo h1 {
-  color: white;
-  font-size: 1.8rem;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 500;
   margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
 .logo-image {
-  width: 50px;
-  height: 50px;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
 }
 
 .balance-container {
-  background-color: white;
-  color: var(--primary-dark);
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
+  background-color: #f8f9fa;
+  color: #333;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: 3px solid var(--primary-dark);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border-left: 3px solid #1a73e8;
 }
 
 .balance-container h2 {
-  font-size: 1rem;
+  font-size: 0.85rem;
   margin: 0 0 0.25rem 0;
-  color: var(--text-secondary);
+  color: #666;
+  font-weight: 400;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
 .balance {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--primary-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a73e8;
 }
 
 /* Animation for balance change */
@@ -1853,62 +4516,176 @@ File Location: src/styles/Header.css
     width: 100%;
   }
 }
-FILE END
 
-FILE START
-File Location: src/styles/HomePage.css
+
+
+// src/styles/HomePage.css
 .home-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  background-color: #ffffff;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  color: #333;
 }
 
 .main-content {
-  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.5rem;
   flex: 1;
   width: 100%;
+  max-width: 1200px;
 }
 
-.settings-panel {
-  margin-bottom: 1rem;
+/* Section Styling */
+.section-title {
+  color: #333;
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 8px;
 }
 
-.content-grid {
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: #1a73e8;
+  border-radius: 2px;
+}
+
+/* Dashboard Section */
+.dashboard-section {
+  animation: slideIn 0.5s ease-out;
+}
+
+.dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
-}
-
-.money-actions {
-  grid-column: span 3;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
 }
 
 .money-visuals {
-  grid-column: span 5;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
 }
 
-.savings-section {
-  grid-column: span 4;
+.money-visuals:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
 }
 
-.history-section {
-  grid-column: span 12;
+.gamify-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.gamify-container:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+/* Money Actions Section */
+.money-section {
+  animation: slideIn 0.5s ease-out;
+}
+
+.money-actions-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
   margin-top: 1rem;
+}
+
+.money-action-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+  flex: 1;
+  max-width: 400px;
+}
+
+.money-action-card:first-child {
+  border-top: 3px solid #4CAF50;
+}
+
+.money-action-card:last-child {
+  border-top: 3px solid #FF5252;
+}
+
+.money-action-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.money-action-card h3 {
+  text-align: left;
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Savings Section */
+.savings-container {
+  animation: slideIn 0.5s ease-out;
+}
+
+.savings-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* History Section */
+.history-container {
+  animation: slideIn 0.5s ease-out;
+}
+
+.history-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Rewards Section */
+.rewards-container {
+  animation: slideIn 0.5s ease-out;
+}
+
+.rewards-content {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .footer {
-  background-color: var(--primary-dark);
-  color: white;
+  background-color: #f5f5f5;
+  color: #666;
   padding: 1rem;
   text-align: center;
-  margin-top: 1rem;
-  border-radius: 16px 16px 0 0;
+  margin-top: 2rem;
+  border-top: 1px solid #eaeaea;
 }
 
 .footer-images {
@@ -2006,10 +4783,124 @@ File Location: src/styles/HomePage.css
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
-FILE END
 
-FILE START
-File Location: src/styles/MoneyChart.css
+
+
+// src/styles/LevelSystem.css
+/* Level System styling */
+.level-system {
+  background-color: #fff8e1;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.level-badge {
+  background-color: #FF9800;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.level-emoji {
+  font-size: 24px;
+}
+
+.level-number {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #F57C00;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.level-title {
+  flex-grow: 1;
+}
+
+.level-title h3 {
+  margin: 0 0 5px 0;
+  color: #E65100;
+  font-size: 1.2rem;
+}
+
+.level-xp {
+  margin: 0;
+  color: #757575;
+  font-size: 0.9rem;
+}
+
+.level-progress {
+  height: 12px;
+  background-color: #FFE0B2;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #FF9800;
+  border-radius: 6px;
+  transition: width 0.5s ease-out;
+}
+
+.level-info {
+  text-align: center;
+  color: #795548;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.level-info p {
+  margin: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .level-badge {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+  }
+  
+  .level-emoji {
+    font-size: 20px;
+  }
+  
+  .level-title h3 {
+    font-size: 1.1rem;
+  }
+}
+
+
+
+
+// src/styles/MoneyChart.css
 .money-chart-container {
   background-color: var(--background-white);
   border-radius: 16px;
@@ -2135,10 +5026,10 @@ File Location: src/styles/MoneyChart.css
 .chart-container canvas {
   animation: fadeInUp 0.5s ease-out;
 }
-FILE END
 
-FILE START
-File Location: src/styles/RemoveMoney.css
+
+
+// src/styles/RemoveMoney.css
 .remove-money-container {
   background-color: var(--background-white);
   border-radius: 16px;
@@ -2279,10 +5170,10 @@ File Location: src/styles/RemoveMoney.css
 .spend-button:active:not(:disabled) {
   animation: shake 0.5s ease;
 }
-FILE END
 
-FILE START
-File Location: src/styles/SavingsGoals.css
+
+
+// src/styles/SavingsGoals.css
 .savings-goals-container {
     background-color: white;
     border-radius: 12px;
@@ -2481,10 +5372,10 @@ File Location: src/styles/SavingsGoals.css
         text-align: center;
     }
 }
-FILE END
 
-FILE START
-File Location: src/styles/TransactionHistory.css
+
+
+// src/styles/TransactionHistory.css
 .transaction-history-container {
   background-color: var(--background-white);
   border-radius: 16px;
@@ -2734,16 +5625,33 @@ File Location: src/styles/TransactionHistory.css
     justify-content: center;
   }
 }
-FILE END
 
-FILE START
-File Location: src/vite-env.d.ts
+
+
+// src/vite-env.d.ts
 /// <reference types="vite/client" />
 
-FILE END
 
-FILE START
-File Location: tsconfig.app.json
+
+
+// src-only-example.js
+import concatenateFiles from './concatenate-files.js';
+
+// Example usage for the src folder only
+concatenateFiles(
+    './src', // Only process the src directory
+    './src-concatenated.txt',
+    [
+        'node_modules/',
+        '.git/',
+        'dist/',
+        'build/'
+    ]
+);
+
+
+
+// tsconfig.app.json
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -2772,10 +5680,10 @@ File Location: tsconfig.app.json
   "include": ["src"]
 }
 
-FILE END
 
-FILE START
-File Location: tsconfig.json
+
+
+// tsconfig.json
 {
   "files": [],
   "references": [
@@ -2784,10 +5692,10 @@ File Location: tsconfig.json
   ]
 }
 
-FILE END
 
-FILE START
-File Location: tsconfig.node.json
+
+
+// tsconfig.node.json
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
@@ -2814,10 +5722,10 @@ File Location: tsconfig.node.json
   "include": ["vite.config.ts"]
 }
 
-FILE END
 
-FILE START
-File Location: vite.config.ts
+
+
+// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -2826,5 +5734,5 @@ export default defineConfig({
   plugins: [react()],
 })
 
-FILE END
+
 

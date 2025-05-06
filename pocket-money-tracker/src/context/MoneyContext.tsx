@@ -1,35 +1,18 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-// Define types
-type TransactionType = 'add' | 'remove';
-export type CurrencySymbol = '£' | '$' | '€' | '¥';
-
-interface Transaction {
-    id: string;
-    amount: number;
-    description: string;
-    type: TransactionType;
-    date: string;
-}
-
-interface SavingsGoal {
-    id: string;
-    name: string;
-    targetAmount: number;
-    currentAmount: number;
-    completed: boolean;
-}
-
-interface MoneyState {
-    transactions: Transaction[];
-    balance: number;
-    totalAdded: number;
-    totalSpent: number;
-    currency: CurrencySymbol;
-    savingsGoals: SavingsGoal[];
-}
+import { 
+    MoneyContext, 
+    levels, 
+    initialState 
+} from './MoneyContextDefinition';
+import type { 
+    MoneyState, 
+    CurrencySymbol, 
+    CharacterType, 
+    MoodType, 
+    TransactionType 
+} from './MoneyContextDefinition';
 
 type MoneyAction =
     | { type: 'ADD_MONEY'; payload: { amount: number; description: string } }
@@ -38,9 +21,14 @@ type MoneyAction =
     | { type: 'ADD_SAVINGS_GOAL'; payload: { name: string; targetAmount: number } }
     | { type: 'CONTRIBUTE_TO_GOAL'; payload: { goalId: string; amount: number } }
     | { type: 'REMOVE_SAVINGS_GOAL'; payload: { goalId: string } }
+    | { type: 'SET_CHARACTER'; payload: { type: CharacterType } }
+    | { type: 'SET_MOOD'; payload: { mood: MoodType } }
+    | { type: 'ADD_XP'; payload: { amount: number } }
+    | { type: 'UNLOCK_ACHIEVEMENT'; payload: { achievementId: string } }
+    | { type: 'UPDATE_ACHIEVEMENT_PROGRESS'; payload: { achievementId: string; progress: number } }
     | { type: 'RESET' };
 
-interface MoneyContextType {
+export interface MoneyContextType {
     state: MoneyState;
     addMoney: (amount: number, description: string) => void;
     removeMoney: (amount: number, description: string) => void;
@@ -49,20 +37,14 @@ interface MoneyContextType {
     contributeToGoal: (goalId: string, amount: number) => void;
     removeSavingsGoal: (goalId: string) => void;
     resetData: () => void;
+    // Gamification methods
+    setCharacter: (type: CharacterType) => void;
+    setMood: (mood: MoodType) => void;
+    addXP: (amount: number) => void;
+    unlockAchievement: (achievementId: string) => void;
+    updateAchievementProgress: (achievementId: string, progress: number) => void;
+    getLevelInfo: () => { name: string; level: number; currentXP: number; xpForNextLevel: number };
 }
-
-// Create context
-const MoneyContext = createContext<MoneyContextType | undefined>(undefined);
-
-// Initial state
-const initialState: MoneyState = {
-    transactions: [],
-    balance: 0,
-    totalAdded: 0,
-    totalSpent: 0,
-    currency: '£',
-    savingsGoals: [],
-};
 
 // Load state from localStorage
 const loadState = (): MoneyState => {
@@ -83,12 +65,102 @@ const loadState = (): MoneyState => {
     }
 };
 
+// Helper function to check and update achievements
+const checkAchievements = (state: MoneyState): MoneyState => {
+    const updatedAchievements = [...state.achievements];
+    let xpGained = 0;
+    let shouldUpdateMood = false;
+    
+    // Check first deposit achievement
+    const firstDepositAchievement = updatedAchievements.find(a => a.id === 'first-deposit');
+    if (firstDepositAchievement && !firstDepositAchievement.unlocked && state.totalAdded > 0) {
+        firstDepositAchievement.unlocked = true;
+        xpGained += 50;
+        shouldUpdateMood = true;
+    }
+    
+    // Check big saver achievement
+    const bigSaverAchievement = updatedAchievements.find(a => a.id === 'big-saver');
+    if (bigSaverAchievement) {
+        const progress = Math.min(state.totalAdded, bigSaverAchievement.maxProgress!);
+        if (progress !== bigSaverAchievement.progress) {
+            bigSaverAchievement.progress = progress;
+            if (progress >= bigSaverAchievement.maxProgress! && !bigSaverAchievement.unlocked) {
+                bigSaverAchievement.unlocked = true;
+                xpGained += 100;
+                shouldUpdateMood = true;
+            }
+        }
+    }
+    
+    // Check goal achiever
+    const goalAchieverAchievement = updatedAchievements.find(a => a.id === 'goal-achiever');
+    if (goalAchieverAchievement && !goalAchieverAchievement.unlocked && 
+        state.savingsGoals.some(goal => goal.completed)) {
+        goalAchieverAchievement.unlocked = true;
+        xpGained += 75;
+        shouldUpdateMood = true;
+    }
+    
+    // Calculate new level based on XP
+    const totalXP = state.xp + xpGained;
+    let newLevel = state.currentLevel;
+    for (let i = levels.length - 1; i >= 0; i--) {
+        if (totalXP >= levels[i].xpRequired) {
+            newLevel = levels[i].level;
+            break;
+        }
+    }
+    
+    // Update mood if achievements were unlocked
+    const mood = shouldUpdateMood ? 'excited' : state.character.mood;
+    
+    return {
+        ...state,
+        achievements: updatedAchievements,
+        xp: totalXP,
+        currentLevel: newLevel,
+        character: {
+            ...state.character,
+            mood
+        }
+    };
+};
+
 // Reducer function
 const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
     let newState: MoneyState;
 
     switch (action.type) {
-        case 'ADD_MONEY':
+        case 'ADD_MONEY': {
+            // Check for consecutive savings streak
+            const today = new Date().toISOString().split('T')[0];
+            const isConsecutive = state.lastSavingDate ? 
+                new Date(state.lastSavingDate).getTime() + (24 * 60 * 60 * 1000) >= new Date(today).getTime() : 
+                false;
+            
+            const newConsecutiveSavings = isConsecutive ? state.consecutiveSavings + 1 : 1;
+            
+            // Update savings streak achievement if needed
+            const savingsStreakAchievement = state.achievements.find(a => a.id === 'savings-streak');
+            let streakUpdatedAchievements = [...state.achievements];
+            let streakXP = 0;
+            
+            if (savingsStreakAchievement && !savingsStreakAchievement.unlocked) {
+                const newProgress = Math.min(newConsecutiveSavings, savingsStreakAchievement.maxProgress!);
+                if (newProgress !== savingsStreakAchievement.progress) {
+                    streakUpdatedAchievements = streakUpdatedAchievements.map(a => 
+                        a.id === 'savings-streak' ? 
+                            { ...a, progress: newProgress, unlocked: newProgress >= a.maxProgress! } : 
+                            a
+                    );
+                    
+                    if (newProgress >= savingsStreakAchievement.maxProgress!) {
+                        streakXP = 75;
+                    }
+                }
+            }
+            
             newState = {
                 ...state,
                 transactions: [
@@ -96,15 +168,27 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: action.payload.amount,
                         description: action.payload.description,
-                        type: 'add',
+                        type: 'income',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
                 ],
                 balance: state.balance + action.payload.amount,
                 totalAdded: state.totalAdded + action.payload.amount,
+                xp: state.xp + 10 + streakXP, // Award XP for saving
+                consecutiveSavings: newConsecutiveSavings,
+                lastSavingDate: today,
+                achievements: streakUpdatedAchievements,
+                character: {
+                    ...state.character,
+                    mood: 'happy'
+                }
             };
+            
+            // Check and update achievements
+            newState = checkAchievements(newState);
             break;
+        }
 
         case 'REMOVE_MONEY':
             newState = {
@@ -114,7 +198,7 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: action.payload.amount,
                         description: action.payload.description,
-                        type: 'remove',
+                        type: 'expense',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
@@ -170,7 +254,7 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
                         id: uuidv4(),
                         amount: amount,
                         description: `Contribution to goal: ${state.savingsGoals.find(g => g.id === goalId)?.name}`,
-                        type: 'remove',
+                        type: 'expense',
                         date: new Date().toISOString(),
                     },
                     ...state.transactions,
@@ -187,6 +271,83 @@ const moneyReducer = (state: MoneyState, action: MoneyAction): MoneyState => {
             };
             break;
 
+        case 'SET_CHARACTER':
+            newState = {
+                ...state,
+                character: {
+                    ...state.character,
+                    type: action.payload.type
+                }
+            };
+            break;
+            
+        case 'SET_MOOD':
+            newState = {
+                ...state,
+                character: {
+                    ...state.character,
+                    mood: action.payload.mood
+                }
+            };
+            break;
+            
+        case 'ADD_XP': {
+            const totalXP = state.xp + action.payload.amount;
+            let newLevel = state.currentLevel;
+            
+            // Calculate new level based on XP
+            for (let i = levels.length - 1; i >= 0; i--) {
+                if (totalXP >= levels[i].xpRequired) {
+                    newLevel = levels[i].level;
+                    break;
+                }
+            }
+            
+            newState = {
+                ...state,
+                xp: totalXP,
+                currentLevel: newLevel
+            };
+            break;
+        }
+            
+        case 'UNLOCK_ACHIEVEMENT':
+            newState = {
+                ...state,
+                achievements: state.achievements.map(achievement => 
+                    achievement.id === action.payload.achievementId ? 
+                        { ...achievement, unlocked: true } : 
+                        achievement
+                )
+            };
+            break;
+            
+        case 'UPDATE_ACHIEVEMENT_PROGRESS': {
+            const achievement = state.achievements.find(a => a.id === action.payload.achievementId);
+            
+            if (achievement && achievement.maxProgress) {
+                const isUnlocked = action.payload.progress >= achievement.maxProgress;
+                
+                newState = {
+                    ...state,
+                    achievements: state.achievements.map(a => 
+                        a.id === action.payload.achievementId ? 
+                            { 
+                                ...a, 
+                                progress: Math.min(action.payload.progress, a.maxProgress!),
+                                unlocked: isUnlocked || a.unlocked
+                            } : 
+                            a
+                    ),
+                    // Add XP if achievement was just unlocked
+                    xp: isUnlocked && !achievement.unlocked ? state.xp + 50 : state.xp
+                };
+            } else {
+                newState = state;
+            }
+            break;
+        }
+            
         case 'RESET':
             newState = initialState;
             break;
@@ -210,15 +371,13 @@ interface MoneyProviderProps {
     children: ReactNode;
 }
 
-export const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
-    const [state, dispatch] = useReducer(moneyReducer, loadState());
+const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
+    const [state, dispatch] = useReducer(moneyReducer, initialState, loadState);
 
-    // Save state to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem('pocketMoneyState', JSON.stringify(state));
     }, [state]);
 
-    // Action creators
     const addMoney = (amount: number, description: string) => {
         dispatch({ type: 'ADD_MONEY', payload: { amount, description } });
     };
@@ -246,28 +405,65 @@ export const MoneyProvider: React.FC<MoneyProviderProps> = ({ children }) => {
     const resetData = () => {
         dispatch({ type: 'RESET' });
     };
+    
+    // Gamification methods
+    const setCharacter = (type: CharacterType) => {
+        dispatch({ type: 'SET_CHARACTER', payload: { type } });
+    };
+    
+    const setMood = (mood: MoodType) => {
+        dispatch({ type: 'SET_MOOD', payload: { mood } });
+    };
+    
+    const addXP = (amount: number) => {
+        dispatch({ type: 'ADD_XP', payload: { amount } });
+    };
+    
+    const unlockAchievement = (achievementId: string) => {
+        dispatch({ type: 'UNLOCK_ACHIEVEMENT', payload: { achievementId } });
+    };
+    
+    const updateAchievementProgress = (achievementId: string, progress: number) => {
+        dispatch({ type: 'UPDATE_ACHIEVEMENT_PROGRESS', payload: { achievementId, progress } });
+    };
+    
+    const getLevelInfo = () => {
+        // Safely find the current level with a fallback to the first level
+        const currentLevel = levels.find(l => l.level === state.currentLevel) || levels[0];
+        const nextLevelIndex = levels.findIndex(l => l.level === currentLevel.level) + 1;
+        const nextLevel = nextLevelIndex < levels.length ? levels[nextLevelIndex] : null;
+        
+        return {
+            name: currentLevel.name,
+            level: currentLevel.level,
+            currentXP: state.xp,
+            xpForNextLevel: nextLevel ? nextLevel.xpRequired : currentLevel.xpRequired + 1000
+        };
+    };
 
     return (
-        <MoneyContext.Provider value={{
-            state,
-            addMoney,
-            removeMoney,
-            setCurrency,
-            addSavingsGoal,
-            contributeToGoal,
-            removeSavingsGoal,
-            resetData
-        }}>
+        <MoneyContext.Provider
+            value={{
+                state,
+                addMoney,
+                removeMoney,
+                setCurrency,
+                addSavingsGoal,
+                contributeToGoal,
+                removeSavingsGoal,
+                resetData,
+                // Gamification methods
+                setCharacter,
+                setMood,
+                addXP,
+                unlockAchievement,
+                updateAchievementProgress,
+                getLevelInfo
+            }}
+        >
             {children}
         </MoneyContext.Provider>
     );
 };
 
-// Custom hook to use the money context
-export const useMoneyContext = (): MoneyContextType => {
-    const context = useContext(MoneyContext);
-    if (context === undefined) {
-        throw new Error('useMoneyContext must be used within a MoneyProvider');
-    }
-    return context;
-};
+export { MoneyProvider };

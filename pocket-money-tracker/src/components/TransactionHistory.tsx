@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/TransactionHistory.css';
 
 const TransactionHistory: React.FC = () => {
     const { state } = useMoneyContext();
-    const [filter, setFilter] = useState<'all' | 'add' | 'remove'>('all');
+    const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
     const [showCount, setShowCount] = useState<number>(10);
 
     // Format date to be more readable
@@ -42,14 +42,14 @@ const TransactionHistory: React.FC = () => {
                             All
                         </button>
                         <button
-                            className={filter === 'add' ? 'active' : ''}
-                            onClick={() => setFilter('add')}
+                            className={filter === 'income' ? 'active' : ''}
+                            onClick={() => setFilter('income')}
                         >
                             Money In
                         </button>
                         <button
-                            className={filter === 'remove' ? 'active' : ''}
-                            onClick={() => setFilter('remove')}
+                            className={filter === 'expense' ? 'active' : ''}
+                            onClick={() => setFilter('expense')}
                         >
                             Money Out
                         </button>
@@ -59,10 +59,10 @@ const TransactionHistory: React.FC = () => {
                         {filteredTransactions.map((transaction) => (
                             <div
                                 key={transaction.id}
-                                className={`transaction-item ${transaction.type === 'add' ? 'add' : 'remove'}`}
+                                className={`transaction-item ${transaction.type === 'income' ? 'add' : 'remove'}`}
                             >
                                 <div className="transaction-icon">
-                                    {transaction.type === 'add' ? (
+                                    {transaction.type === 'income' ? (
                                         <img src="/images/money-in.svg" alt="Money In" />
                                     ) : (
                                         <img src="/images/money-out.svg" alt="Money Out" />
@@ -75,7 +75,7 @@ const TransactionHistory: React.FC = () => {
                                 </div>
 
                                 <div className="transaction-amount">
-                                    {transaction.type === 'add' ? '+' : '-'}{state.currency}{transaction.amount.toFixed(2)}
+                                    {transaction.type === 'income' ? '+' : '-'}{state.currency}{transaction.amount.toFixed(2)}
                                 </div>
                             </div>
                         ))}

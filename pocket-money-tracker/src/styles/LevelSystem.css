@@ -1,0 +1,109 @@
+/* Level System styling */
+.level-system {
+  background-color: #fff8e1;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.level-badge {
+  background-color: #FF9800;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.level-emoji {
+  font-size: 24px;
+}
+
+.level-number {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #F57C00;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.level-title {
+  flex-grow: 1;
+}
+
+.level-title h3 {
+  margin: 0 0 5px 0;
+  color: #E65100;
+  font-size: 1.2rem;
+}
+
+.level-xp {
+  margin: 0;
+  color: #757575;
+  font-size: 0.9rem;
+}
+
+.level-progress {
+  height: 12px;
+  background-color: #FFE0B2;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #FF9800;
+  border-radius: 6px;
+  transition: width 0.5s ease-out;
+}
+
+.level-info {
+  text-align: center;
+  color: #795548;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.level-info p {
+  margin: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .level-badge {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+  }
+  
+  .level-emoji {
+    font-size: 20px;
+  }
+  
+  .level-title h3 {
+    font-size: 1.1rem;
+  }
+}

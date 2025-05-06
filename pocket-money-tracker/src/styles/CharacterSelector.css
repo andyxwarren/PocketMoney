@@ -1,0 +1,72 @@
+/* Character Selector styling */
+.character-selector {
+  background-color: #f9f4ff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.character-selector h3 {
+  color: #6200EA;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.character-options {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.character-option {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.character-option:hover {
+  background-color: rgba(156, 39, 176, 0.1);
+}
+
+.character-option.selected {
+  background-color: rgba(156, 39, 176, 0.15);
+  border-color: #9C27B0;
+  transform: scale(1.05);
+}
+
+.character-name {
+  margin: 8px 0 0;
+  font-weight: bold;
+  color: #673AB7;
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .character-options {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .character-option {
+    width: 45%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character-options {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .character-option {
+    width: 80%;
+  }
+}

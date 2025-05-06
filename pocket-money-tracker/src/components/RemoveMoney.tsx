@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/RemoveMoney.css';
 
 const RemoveMoney: React.FC = () => {

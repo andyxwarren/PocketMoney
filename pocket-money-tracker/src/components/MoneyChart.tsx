@@ -11,7 +11,7 @@ import {
     Title
 } from 'chart.js';
 import { Doughnut, Line } from 'react-chartjs-2';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/MoneyChart.css';
 
 // Register ChartJS components
@@ -51,10 +51,10 @@ const MoneyChart: React.FC = () => {
         // Calculate running balance for each transaction
         let runningBalance = state.balance;
         const balanceHistory = transactions.map(t => {
-            if (t.type === 'remove') {
-                runningBalance += t.amount;
-            } else {
+            if (t.type === 'expense') {
                 runningBalance -= t.amount;
+            } else {
+                runningBalance += t.amount;
             }
             return runningBalance;
         }).reverse();

@@ -1,0 +1,149 @@
+/* Achievements component styling */
+.achievements-container {
+  background-color: #f2f7ff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+  margin-bottom: 20px;
+}
+
+.achievements-container h3 {
+  color: #1565C0;
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid #E3F2FD;
+}
+
+.achievement-card.unlocked {
+  border-color: #2196F3;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+}
+
+.achievement-card.locked {
+  opacity: 0.7;
+}
+
+.achievement-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #E3F2FD;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.achievement-card.unlocked .achievement-icon {
+  background-color: #BBDEFB;
+}
+
+.achievement-emoji {
+  font-size: 24px;
+}
+
+.achievement-emoji.locked {
+  opacity: 0.5;
+}
+
+.achievement-info {
+  flex-grow: 1;
+}
+
+.achievement-info h4 {
+  margin: 0 0 5px 0;
+  color: #1976D2;
+  font-size: 1rem;
+}
+
+.achievement-info p {
+  margin: 0 0 8px 0;
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+.achievement-progress {
+  height: 10px;
+  background-color: #E0E0E0;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #2196F3;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.7rem;
+  color: #424242;
+  text-shadow: 0 0 2px white;
+}
+
+.achievement-unlocked-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 2px solid white;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .achievements-list {
+    gap: 10px;
+  }
+  
+  .achievement-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+  
+  .achievement-emoji {
+    font-size: 20px;
+  }
+  
+  .achievement-info h4 {
+    font-size: 0.9rem;
+  }
+  
+  .achievement-info p {
+    font-size: 0.8rem;
+  }
+}

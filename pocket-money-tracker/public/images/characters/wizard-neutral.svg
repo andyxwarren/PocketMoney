@@ -1,0 +1,27 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wizard Character - Neutral Mood -->
+  <!-- Wizard Hat -->
+  <path d="M30,35 L50,5 L70,35" fill="#673AB7" />
+  <path d="M25,35 L75,35 L75,40 C75,45 65,50 50,50 C35,50 25,45 25,40 Z" fill="#9575CD" />
+  <!-- Hat Star -->
+  <path d="M50,15 L52,20 L58,20 L53,24 L55,30 L50,26 L45,30 L47,24 L42,20 L48,20 Z" fill="#FFD700" />
+  <!-- Face -->
+  <circle cx="50" cy="60" r="15" fill="#FFDBAC" />
+  <!-- Eyes -->
+  <circle cx="43" cy="55" r="3" fill="white" />
+  <circle cx="57" cy="55" r="3" fill="white" />
+  <circle cx="43" cy="55" r="1" fill="#333" />
+  <circle cx="57" cy="55" r="1" fill="#333" />
+  <!-- Beard -->
+  <path d="M40,60 Q50,80 60,60" fill="#E0E0E0" />
+  <!-- Robe Body -->
+  <path d="M35,70 L30,100 L70,100 L65,70" fill="#673AB7" />
+  <!-- Robe Top -->
+  <path d="M35,70 L40,65 Q50,60 60,65 L65,70" fill="#9575CD" />
+  <!-- Arms -->
+  <path d="M35,70 L25,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <path d="M65,70 L75,85" stroke="#9575CD" stroke-width="5" fill="none" />
+  <!-- Wand -->
+  <line x1="75" y1="85" x2="85" y2="75" stroke="#4A148C" stroke-width="2" />
+  <circle cx="87" cy="73" r="3" fill="#FFD700" />
+</svg>

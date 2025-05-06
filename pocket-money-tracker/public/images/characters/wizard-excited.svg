@@ -1,0 +1,41 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wizard Character - Excited Mood -->
+  <!-- Wizard Hat - slightly tilted for excitement -->
+  <path d="M32,35 L50,0 L68,35" fill="#673AB7" transform="rotate(5 50 35)" />
+  <path d="M25,35 L75,35 L75,40 C75,45 65,50 50,50 C35,50 25,45 25,40 Z" fill="#9575CD" transform="rotate(5 50 35)" />
+  <!-- Hat Stars -->
+  <path d="M50,15 L52,20 L58,20 L53,24 L55,30 L50,26 L45,30 L47,24 L42,20 L48,20 Z" fill="#FFD700" />
+  <path d="M40,20 L41,23 L44,23 L42,25 L43,28 L40,26 L37,28 L38,25 L36,23 L39,23 Z" fill="#FFD700" />
+  <path d="M60,20 L61,23 L64,23 L62,25 L63,28 L60,26 L57,28 L58,25 L56,23 L59,23 Z" fill="#FFD700" />
+  <!-- Face -->
+  <circle cx="50" cy="60" r="15" fill="#FFDBAC" />
+  <!-- Eyes - Wide excited -->
+  <circle cx="43" cy="55" r="4" fill="white" />
+  <circle cx="57" cy="55" r="4" fill="white" />
+  <circle cx="43" cy="55" r="2" fill="#333" />
+  <circle cx="57" cy="55" r="2" fill="#333" />
+  <!-- Eyebrows - raised -->
+  <path d="M39,50 L47,48" stroke="#333" stroke-width="1.5" />
+  <path d="M53,48 L61,50" stroke="#333" stroke-width="1.5" />
+  <!-- Open mouth in awe -->
+  <ellipse cx="50" cy="65" rx="5" ry="4" fill="#333" />
+  <!-- Beard - flowing more with excitement -->
+  <path d="M40,60 Q50,88 60,60" fill="#E0E0E0" />
+  <!-- Robe Body -->
+  <path d="M35,70 L30,100 L70,100 L65,70" fill="#673AB7" />
+  <!-- Robe Top -->
+  <path d="M35,70 L40,65 Q50,60 60,65 L65,70" fill="#9575CD" />
+  <!-- Arms - more animated pose -->
+  <path d="M35,70 L20,75" stroke="#9575CD" stroke-width="5" fill="none" />
+  <path d="M65,70 L80,70" stroke="#9575CD" stroke-width="5" fill="none" />
+  <!-- Wand with lots of magic -->
+  <line x1="80" y1="70" x2="90" y2="65" stroke="#4A148C" stroke-width="2" />
+  <circle cx="92" cy="63" r="5" fill="#FFD700" />
+  <!-- Magic burst -->
+  <path d="M92,63 L96,60 M92,63 L98,63 M92,63 L96,66 M92,63 L92,58 M92,63 L92,68 M92,63 L88,60 M92,63 L86,63 M92,63 L88,66" stroke="#FFD700" stroke-width="1.5" />
+  <!-- Magic sparkles all around -->
+  <path d="M83,50 L85,47 L87,50 L83,49 L87,49 Z" fill="#FFD700" />
+  <path d="M100,80 L102,77 L104,80 L100,79 L104,79 Z" fill="#FFD700" />
+  <path d="M80,90 L82,87 L84,90 L80,89 L84,89 Z" fill="#FFD700" />
+  <path d="M70,50 L72,47 L74,50 L70,49 L74,49 Z" fill="#FFD700" />
+</svg>

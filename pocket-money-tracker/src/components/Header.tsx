@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/Header.css';
 
 const Header: React.FC = () => {

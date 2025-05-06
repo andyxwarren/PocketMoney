@@ -1,3 +1,7 @@
+// The run this file:
+// node example-usage.js  
+
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -67,10 +71,10 @@ function concatenateFiles(rootDir, outputFile, excludePatterns = []) {
 
                     // Format the output
                     const output = [
-                        'FILE START',
-                        `File Location: ${relativePath.replace(/\\/g, '/')}`,
+                        '',
+                        `// ${relativePath.replace(/\\/g, '/')}`,
                         content,
-                        'FILE END',
+                        '',
                         '\n'
                     ].join('\n');
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useMoneyContext } from '../context/MoneyContext';
+import { useMoneyContext } from '../context/useMoneyContext';
 import '../styles/CurrencySelector.css';
-import type { CurrencySymbol } from '../context/MoneyContext';
+import type { CurrencySymbol } from '../context/MoneyContextDefinition';
 
 const CurrencySelector: React.FC = () => {
     const { state, setCurrency } = useMoneyContext();

@@ -1,0 +1,10 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="15" width="60" height="70" rx="4" fill="#E3F2FD" stroke="#64B5F6" stroke-width="2"/>
+  <line x1="30" y1="30" x2="70" y2="30" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="40" x2="70" y2="40" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="50" x2="70" y2="50" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <line x1="30" y1="60" x2="50" y2="60" stroke="#BBDEFB" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="60" cy="70" r="15" fill="#BBDEFB" opacity="0.6"/>
+  <path d="M55 70L58 73L65 66" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="50" y="90" font-family="Arial" font-size="8" font-weight="bold" fill="#64B5F6" text-anchor="middle">No items yet</text>
+</svg>

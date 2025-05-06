@@ -1,0 +1,42 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Piggy Bank Character - Excited Mood -->
+  <!-- Body - slightly larger/bouncing -->
+  <ellipse cx="50" cy="55" rx="42" ry="32" fill="#FF6D9F" />
+  <!-- Head -->
+  <circle cx="50" cy="35" r="25" fill="#FF6D9F" />
+  <!-- Ears -->
+  <ellipse cx="30" cy="20" rx="12" ry="14" fill="#FF8CAF" transform="rotate(-25 30 20)" />
+  <ellipse cx="70" cy="20" rx="12" ry="14" fill="#FF8CAF" transform="rotate(25 70 20)" />
+  <!-- Eyes - Wide excited -->
+  <circle cx="40" cy="30" r="6" fill="white" />
+  <circle cx="60" cy="30" r="6" fill="white" />
+  <circle cx="40" cy="30" r="3" fill="black" />
+  <circle cx="60" cy="30" r="3" fill="black" />
+  <!-- Eyebrows - raised -->
+  <path d="M34,22 Q40,18 46,22" stroke="#FF417D" stroke-width="2" fill="none" />
+  <path d="M54,22 Q60,18 66,22" stroke="#FF417D" stroke-width="2" fill="none" />
+  <!-- Nose -->
+  <ellipse cx="50" cy="40" rx="8" ry="6" fill="#FF5286" />
+  <circle cx="46" cy="39" r="2" fill="white" />
+  <!-- Mouth - Open excited -->
+  <ellipse cx="50" cy="48" rx="8" ry="5" fill="#FF417D" />
+  <!-- Slot -->
+  <rect x="40" y="60" width="20" height="3" rx="1" fill="#FF417D" />
+  <!-- Four Legs - bouncing pose -->
+  <rect x="25" y="82" width="8" height="13" rx="4" fill="#FF6D9F" />
+  <rect x="67" y="82" width="8" height="13" rx="4" fill="#FF6D9F" />
+  <rect x="35" y="87" width="8" height="8" rx="4" fill="#FF6D9F" />
+  <rect x="57" y="87" width="8" height="8" rx="4" fill="#FF6D9F" />
+  <!-- Tail - excited wiggle -->
+  <path d="M10,60 Q0,55 5,45 Q10,35 5,30" stroke="#FF6D9F" stroke-width="4" fill="none" />
+  <!-- Stars and excitement indicators -->
+  <path d="M20,15 L22,10 L24,15 L20,13 L24,13 Z" fill="#FFD700" />
+  <path d="M80,15 L82,10 L84,15 L80,13 L84,13 Z" fill="#FFD700" />
+  <path d="M15,40 L17,35 L19,40 L15,38 L19,38 Z" fill="#FFD700" />
+  <path d="M85,40 L87,35 L89,40 L85,38 L89,38 Z" fill="#FFD700" />
+  <!-- Motion lines -->
+  <path d="M85,55 L95,55" stroke="#FFD700" stroke-width="2" />
+  <path d="M85,60 L95,60" stroke="#FFD700" stroke-width="2" />
+  <path d="M15,55 L5,55" stroke="#FFD700" stroke-width="2" />
+  <path d="M15,60 L5,60" stroke="#FFD700" stroke-width="2" />
+</svg>
